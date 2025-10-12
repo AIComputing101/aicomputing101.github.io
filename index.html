@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIComputing101 - Educational Organization</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Google Fonts - Inter (modern sans-serif) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF', // Professional blue
+                        secondary: '#7B61FF', // Accent purple
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+            }
+        }
+    </style>
+</head>
+
+<body class="font-inter bg-light text-dark antialiased">
+    <!-- Navigation -->
+    <header class="fixed w-full bg-white/90 backdrop-blur-sm shadow-sm z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="#" class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+                    <i class="fa fa-graduation-cap text-white text-xl"></i>
+                </div>
+                <span class="text-xl font-bold text-primary">AIComputing101</span>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="#about" class="font-medium hover:text-primary transition-colors">About</a>
+                <a href="#vision" class="font-medium hover:text-primary transition-colors">Vision</a>
+                <a href="#tasks" class="font-medium hover:text-primary transition-colors">Tasks</a>
+                <a href="#blog" class="font-medium hover:text-primary transition-colors">Blog</a>
+                <a href="#founder" class="font-medium hover:text-primary transition-colors">Founder</a>
+                <a href="https://github.com/AIComputing101" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                    <i class="fa fa-github"></i> GitHub
+                </a>
+            </nav>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-dark text-2xl">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-3 flex flex-col gap-4">
+                <a href="#about" class="py-2 font-medium hover:text-primary transition-colors">About</a>
+                <a href="#vision" class="py-2 font-medium hover:text-primary transition-colors">Vision</a>
+                <a href="#tasks" class="py-2 font-medium hover:text-primary transition-colors">Tasks</a>
+                <a href="#blog" class="py-2 font-medium hover:text-primary transition-colors">Blog</a>
+                <a href="#founder" class="py-2 font-medium hover:text-primary transition-colors">Founder</a>
+                <a href="https://github.com/AIComputing101" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors w-fit">
+                    <i class="fa fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="pt-32 pb-20 md:pt-40 md:pb-32 bg-gradient-to-br from-primary/5 to-secondary/5">
+            <div class="container mx-auto px-4">
+                <div class="max-w-4xl mx-auto text-center">
+                    <h1 class="text-[clamp(2.5rem,5vw,4rem)] font-bold leading-tight text-shadow mb-6">
+                        Empowering the Next Generation of <span class="text-primary">AI & Computing</span> Innovators
+                    </h1>
+                    <p class="text-[clamp(1.1rem,2vw,1.3rem)] text-gray-600 mb-10 max-w-2xl mx-auto">
+                        AIComputing101 is dedicated to making artificial intelligence and computing education accessible, practical, and inspiring for everyone.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="#about" class="px-8 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/20">
+                            Learn More
+                        </a>
+                        <a href="https://github.com/AIComputing101" target="_blank" class="px-8 py-3 bg-white text-primary border border-primary rounded-lg font-medium hover:bg-primary/5 transition-all">
+                            <i class="fa fa-github mr-2"></i> Explore on GitHub
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-20 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto text-center mb-16">
+                    <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">Our Objective</h2>
+                    <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+                    <p class="text-gray-600 text-lg">
+                        AIComputing101 was founded to bridge the gap between theoretical knowledge and practical application in AI and computing.
+                    </p>
+                </div>
+
+                <div class="max-w-4xl mx-auto bg-gray-50 rounded-2xl p-8 shadow-sm">
+                    <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                        We believe that AI and computing skills should not be limited to those with formal technical backgrounds. Our core objective is to:
+                    </p>
+                    <ul class="space-y-3 text-gray-700">
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <span>Democratize access to high-quality AI and computing education</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <span>Provide hands-on learning experiences through practical projects</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <span>Foster a community of learners and contributors</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <span>Bridge academic theory with real-world applications</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Vision Section -->
+        <section id="vision" class="py-20 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto text-center mb-16">
+                    <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">Our Vision</h2>
+                    <div class="w-20 h-1 bg-secondary mx-auto mb-6"></div>
+                    <p class="text-gray-600 text-lg">
+                        We envision a world where AI and computing literacy is as fundamental as reading and writing.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    <div class="bg-white rounded-xl p-8 shadow-sm card-hover">
+                        <div class="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center mb-6">
+                            <i class="fa fa-lightbulb-o text-secondary text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">Inclusive Innovation</h3>
+                        <p class="text-gray-600">
+                            We aim to create an ecosystem where anyone, regardless of their background, can contribute to and benefit from AI and computing advancements.
+                        </p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-8 shadow-sm card-hover">
+                        <div class="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center mb-6">
+                            <i class="fa fa-globe text-secondary text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">Global Impact</h3>
+                        <p class="text-gray-600">
+                            Through education and collaboration, we strive to address global challenges using AI and computing technologies for the betterment of society.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tasks Section -->
+        <section id="tasks" class="py-20 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto text-center mb-16">
+                    <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">Our Key Tasks</h2>
+                    <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+                    <p class="text-gray-600 text-lg">
+                        We focus on actionable initiatives to achieve our mission and vision.
+                    </p>
+                </div>
+
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                    <div class="bg-gray-50 rounded-xl p-6 card-hover">
+                        <div class="text-primary text-3xl mb-4">
+                            <i class="fa fa-book"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">Educational Resources</h3>
+                        <p class="text-gray-600">
+                            Develop free, open-source tutorials, courses, and documentation on AI and computing topics.
+                        </p>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-6 card-hover">
+                        <div class="text-primary text-3xl mb-4">
+                            <i class="fa fa-code"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">Project Repository</h3>
+                        <p class="text-gray-600">
+                            Maintain a collection of practical projects that learners can build, modify, and contribute to.
+                        </p>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-6 card-hover">
+                        <div class="text-primary text-3xl mb-4">
+                            <i class="fa fa-users"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">Community Building</h3>
+                        <p class="text-gray-600">
+                            Foster a supportive community through discussions, mentorship, and collaborative learning.
+                        </p>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-6 card-hover">
+                        <div class="text-primary text-3xl mb-4">
+                            <i class="fa fa-comments"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">Knowledge Sharing</h3>
+                        <p class="text-gray-600">
+                            Organize workshops, webinars, and talks featuring experts in AI and computing fields.
+                        </p>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-6 card-hover">
+                        <div class="text-primary text-3xl mb-4">
+                            <i class="fa fa-flask"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">Research Initiatives</h3>
+                        <p class="text-gray-600">
+                            Encourage and support applied research projects that solve real-world problems using AI.
+                        </p>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-6 card-hover">
+                        <div class="text-primary text-3xl mb-4">
+                            <i class="fa fa-handshake-o"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">Partnerships</h3>
+                        <p class="text-gray-600">
+                            Collaborate with educational institutions, tech companies, and nonprofits to expand our reach.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog Section -->
+        <section id="blog" class="py-20 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto text-center mb-16">
+                    <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">Latest Blog Posts</h2>
+                    <div class="w-20 h-1 bg-secondary mx-auto mb-6"></div>
+                    <p class="text-gray-600 text-lg">
+                        Insights, tutorials, and updates from our community and team.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <!-- Blog Post 1 -->
+                    <article class="bg-white rounded-xl overflow-hidden shadow-sm card-hover">
+                        <img src="https://picsum.photos/id/180/600/400" alt="AI in Education" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <div class="flex items-center text-sm text-gray-500 mb-3">
+                                <span><i class="fa fa-calendar-o mr-1"></i> Oct 10, 2025</span>
+                                <span class="mx-2">•</span>
+                                <span><i class="fa fa-user-o mr-1"></i> Admin</span>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2">How AI is Transforming Education</h3>
+                            <p class="text-gray-600 mb-4 line-clamp-3">
+                                Explore the latest ways artificial intelligence is revolutionizing learning experiences and making education more personalized.
+                            </p>
+                            <a href="#" class="inline-flex items-center text-primary font-medium hover:underline">
+                                Read more <i class="fa fa-arrow-right ml-2 text-sm"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- Blog Post 2 -->
+                    <article class="bg-white rounded-xl overflow-hidden shadow-sm card-hover">
+                        <img src="https://picsum.photos/id/0/600/400" alt="Python for AI" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <div class="flex items-center text-sm text-gray-500 mb-3">
+                                <span><i class="fa fa-calendar-o mr-1"></i> Oct 5, 2025</span>
+                                <span class="mx-2">•</span>
+                                <span><i class="fa fa-user-o mr-1"></i> Jane Doe</span>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2">Python Fundamentals for AI Beginners</h3>
+                            <p class="text-gray-600 mb-4 line-clamp-3">
+                                A comprehensive guide to the Python programming concepts you need to start your AI journey.
+                            </p>
+                            <a href="#" class="inline-flex items-center text-primary font-medium hover:underline">
+                                Read more <i class="fa fa-arrow-right ml-2 text-sm"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- Blog Post 3 -->
+                    <article class="bg-white rounded-xl overflow-hidden shadow-sm card-hover">
+                        <img src="https://picsum.photos/id/160/600/400" alt="Open Source AI" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <div class="flex items-center text-sm text-gray-500 mb-3">
+                                <span><i class="fa fa-calendar-o mr-1"></i> Sep 28, 2025</span>
+                                <span class="mx-2">•</span>
+                                <span><i class="fa fa-user-o mr-1"></i> John Smith</span>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2">The Rise of Open Source AI Models</h3>
+                            <p class="text-gray-600 mb-4 line-clamp-3">
+                                How open source AI is democratizing access to advanced models and fostering innovation.
+                            </p>
+                            <a href="#" class="inline-flex items-center text-primary font-medium hover:underline">
+                                Read more <i class="fa fa-arrow-right ml-2 text-sm"></i>
+                            </a>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="text-center mt-12">
+                    <a href="#" class="px-6 py-3 border border-primary text-primary rounded-lg font-medium hover:bg-primary/5 transition-colors">
+                        View All Posts
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Founder Section -->
+        <section id="founder" class="py-20 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto text-center mb-16">
+                    <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">About the Founder</h2>
+                    <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+                    <p class="text-gray-600 text-lg">
+                        The visionary behind AIComputing101.
+                    </p>
+                </div>
+
+                <div class="max-w-4xl mx-auto bg-gray-50 rounded-2xl overflow-hidden shadow-sm">
+                    <div class="md:flex">
+                        <div class="md:w-1/3">
+                            <img src="https://picsum.photos/id/64/400/600" alt="Founder" class="w-full h-full object-cover">
+                        </div>
+                        <div class="md:w-2/3 p-8 md:p-10">
+                            <h3 class="text-2xl font-semibold mb-4">Your Name</h3>
+                            <p class="text-gray-500 mb-6">AI Educator & Technologist</p>
+                            
+                            <p class="text-gray-700 mb-4 leading-relaxed">
+                                With over [X] years of experience in AI research and education, I founded AIComputing101 to address the growing need for accessible, practical AI education.
+                            </p>
+                            <p class="text-gray-700 mb-6 leading-relaxed">
+                                My background includes [briefly mention relevant experience: e.g., "teaching at [institution]", "working on [AI projects]", "publishing in [field]"]. I believe that education should empower people to create, not just consume, technology.
+                            </p>
+                            
+                            <div class="flex gap-4">
+                                <a href="https://github.com/your-profile" target="_blank" class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 hover:bg-primary hover:text-white transition-colors">
+                                    <i class="fa fa-github"></i>
+                                </a>
+                                <a href="https://twitter.com/your-profile" target="_blank" class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 hover:bg-primary hover:text-white transition-colors">
+                                    <i class="fa fa-twitter"></i>
+                                </a>
+                                <a href="https://linkedin.com/in/your-profile" target="_blank" class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 hover:bg-primary hover:text-white transition-colors">
+                                    <i class="fa fa-linkedin"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-20 bg-gradient-to-r from-primary to-secondary text-white">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-6">Join Our Community</h2>
+                <p class="text-white/90 text-lg max-w-2xl mx-auto mb-10">
+                    Be part of our mission to make AI and computing education accessible to everyone. Contribute, learn, and grow with us.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="https://github.com/AIComputing101" target="_blank" class="px-8 py-3 bg-white text-primary rounded-lg font-medium hover:bg-gray-100 transition-all">
+                        <i class="fa fa-github mr-2"></i> Star Our Repo
+                    </a>
+                    <a href="#" class="px-8 py-3 bg-transparent border border-white text-white rounded-lg font-medium hover:bg-white/10 transition-all">
+                        <i class="fa fa-envelope mr-2"></i> Subscribe to Updates
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white/80 py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
+                            <i class="fa fa-graduation-cap text-primary text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">AIComputing101</span>
+                    </div>
+                    <p class="mb-4">
+                        Making AI and computing education accessible for everyone.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-youtube-play text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-linkedin text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#about" class="hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="#vision" class="hover:text-white transition-colors">Our Vision</a></li>
+                        <li><a href="#tasks" class="hover:text-white transition-colors">Our Tasks</a></li>
+                        <li><a href="#blog" class="hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#founder" class="hover:text-white transition-colors">Founder</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="https://github.com/AIComputing101" target="_blank" class="hover:text-white transition-colors">GitHub Repos</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Tutorials</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Projects</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Events</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Contact</h4>
+                    <ul class="space-y-2">
+                        <li class="flex items-start gap-2">
+                            <i class="fa fa-envelope-o mt-1"></i>
+                            <span>contact@aicomputing101.org</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa fa-github mt-1"></i>
+                            <span>github.com/AIComputing101</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-8 text-center text-sm">
+                <p>&copy; 2025 AIComputing101. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            const icon = mobileMenuBtn.querySelector('i');
+            if (mobileMenu.classList.contains('hidden')) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            } else {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80, // Account for header height
+                        behavior: 'smooth'
+                    });
+                    
+                    // Close mobile menu if open
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                        const icon = mobileMenuBtn.querySelector('i');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
+            });
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('py-2', 'shadow');
+                header.classList.remove('py-3');
+            } else {
+                header.classList.add('py-3');
+                header.classList.remove('py-2', 'shadow');
+            }
+        });
+    </script>
+</body>
+</html>
