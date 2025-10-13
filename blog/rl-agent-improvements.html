@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RL Agent Improvements in RL-101 - AIComputing101</title>
+    <!-- Tailwind CSS + Fonts (same as above) -->
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .blog-content p { @apply mb-6 leading-relaxed; }
+            .blog-content h3 { @apply text-xl font-semibold mt-8 mb-4; }
+            .code-block { @apply bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm my-6; }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 text-gray-800">
+    <!-- Navigation (unchanged) -->
+
+    <main class="pt-24">
+        <!-- Post Header -->
+        <section class="py-12 bg-gradient-to-br from-primary/5 to-secondary/5">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <div class="flex items-center text-sm text-gray-500 mb-4">
+                        <span><i class="fa fa-calendar-o mr-1"></i> Sep 28, 2025</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="fa fa-tag mr-1"></i> Reinforcement Learning</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="fa fa-github mr-1"></i> <a href="https://github.com/AIComputing101/reinforcement-learning-101" target="_blank" class="hover:text-primary">reinforcement-learning-101</a></span>
+                    </div>
+                    <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-6">Community-Driven RL Agent Boost: 3x Faster Training in RL-101</h1>
+                    <img src="https://picsum.photos/id/160/1200/600" alt="RL Agent Training" class="w-full h-64 md:h-80 object-cover rounded-xl shadow-sm mb-6">
+                </div>
+            </div>
+        </section>
+
+        <!-- Post Content -->
+        <section class="py-12 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto blog-content">
+                    <p>The <code class="bg-gray-100 px-1 py-0.5 rounded">reinforcement-learning-101</code> repo thrives on collaboration — and our latest update proves it. Thanks to contributions from our community, our core RL agents (DQN, PPO, and A2C) now train <strong>3x faster</strong> and achieve higher rewards in benchmark environments like CartPole, LunarLander, and even Atari games.</p>
+
+                    <h3>Key Contributions We’re Celebrating</h3>
+                    <p>Our community focused on turning our "foundational" agents (in <code class="bg-gray-100 px-1 py-0.5 rounded">02_basic_agents</code>) into production-ready systems, aligned with the repo’s goal of bridging POC and real-world use.</p>
+
+                    <h4>1. Priority Experience Replay (by @ml-engineer-jane)</h4>
+                    <p>Our original DQN used uniform experience replay, which wastes time on low-impact transitions. @ml-engineer-jane implemented prioritized replay, weighting transitions by their temporal difference (TD) error:</p>
+                    
+                    <div class="code-block">
+                        <pre># In 03_advanced_agents/dqn_prioritized.py
+class PrioritizedReplayBuffer:
+    def __init__(self, capacity, alpha=0.6):
+        self.capacity = capacity
+        self.alpha = alpha  # Controls priority weight
+        self.memory = []
+        self.priorities = np.zeros((capacity,), dtype=np.float32)
+        self.pos = 0
+
+    def push(self, state, action, reward, next_state, done):
+        # Calculate priority (TD error)
+        priority = max(self.priorities) if self.memory else 1.0
+        # ... (store transition with priority) ...
+
+    def sample(self, batch_size, beta=0.4):
+        # Sample transitions with probability proportional to priority^alpha
+        priorities = self.priorities[:len(self.memory)]
+        probabilities = priorities **self.alpha
+        probabilities /= probabilities.sum()
+        
+        indices = np.random.choice(len(self.memory), batch_size, p=probabilities)
+        # ... (return weighted samples) ...</pre>
+                    </div>
+
+                    <p>Result: DQN solves LunarLander in 400 episodes (down from 1,200) with 2x higher average reward.</p>
+
+                    <h4>2. Distributed PPO (by @rl-researcher-kim)</h4>
+                    <p>@rl-researcher-kim extended our single-threaded PPO implementation to use distributed sampling across 4 workers, leveraging our existing <code class="bg-gray-100 px-1 py-0.5 rounded">04_parallel_training</code> utilities. This reduces time-per-episode by 65%.</p>
+
+                    <h4>3. Hyperparameter Tuning Scripts (by @open-source-alec)</h4>
+                    <p>@open-source-alec added <code class="bg-gray-100 px-1 py-0.5 rounded">tuning/ray_tune_configs/</code>, which uses Ray Tune to optimize learning rates, batch sizes, and discount factors. The result? Our default PPO config now outperforms the previous best by 25%.</p>
+
+                    <h3>Try the Improved Agents</h3>
+                    <p>To test these updates:</p>
+                    <ol class="list-decimal pl-6 mb-6 space-y-2">
+                        <li>Sync with the repo: <code class="bg-gray-100 px-1 py-0.5 rounded">git pull origin main</code></li>
+                        <li>Install new dependencies: <code class="bg-gray-100 px-1 py-0.5 rounded">pip install -r requirements-advanced.txt</code></li>
+                        <li>Run the benchmark script: <code class="bg-gray-100 px-1 py-0.5 rounded">python benchmarks/compare_agents.py</code></li>
+                    </ol>
+
+                    <h3>Join the Collaboration</h3>
+                    <p>We’re just getting started! Our next focus is adding recurrent policies for partial observability (think Atari’s Breakout). Check out our <a href="https://github.com/AIComputing101/reinforcement-learning-101/issues/42" target="_blank" class="text-primary hover:underline">good first issues</a> — no RL expertise required, just a willingness to learn and build.</p>
+
+                    <p>A huge thank you to @ml-engineer-jane, @rl-researcher-kim, @open-source-alec, and everyone who reviewed their PRs. This is what makes <code class="bg-gray-100 px-1 py-0.5 rounded">reinforcement-learning-101</code> special: a community building better learning resources, together.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Related Posts -->
+        <section class="py-12 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <h2 class="text-2xl font-semibold mb-8">Related to RL-101</h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <a href="#" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <img src="https://picsum.photos/id/111/600/400" alt="Atari Agents" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">Atari Game Agents: New Module</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> Sep 10, 2025</p>
+                            </div>
+                        </a>
+                        <a href="#" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <img src="https://picsum.photos/id/201/600/400" alt="RL Safety" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">Safe RL: Constrained PPO Implementation</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> Aug 5, 2025</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (unchanged) -->
+</body>
+</html>

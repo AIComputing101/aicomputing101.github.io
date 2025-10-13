@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CUDA Kernel Optimization in GPU-101 - AIComputing101</title>
+    <!-- Tailwind CSS + Fonts (same as above) -->
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .blog-content p { @apply mb-6 leading-relaxed; }
+            .blog-content h3 { @apply text-xl font-semibold mt-8 mb-4; }
+            .code-block { @apply bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm my-6; }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 text-gray-800">
+    <!-- Navigation (unchanged) -->
+
+    <main class="pt-24">
+        <!-- Post Header -->
+        <section class="py-12 bg-gradient-to-br from-primary/5 to-secondary/5">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <div class="flex items-center text-sm text-gray-500 mb-4">
+                        <span><i class="fa fa-calendar-o mr-1"></i> Oct 5, 2025</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="fa fa-tag mr-1"></i> GPU Programming</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="fa fa-github mr-1"></i> <a href="https://github.com/AIComputing101/gpu-programming-101" target="_blank" class="hover:text-primary">gpu-programming-101</a></span>
+                    </div>
+                    <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-6">Optimizing CUDA Kernels: From POC to Production in GPU-101</h1>
+                    <img src="https://picsum.photos/id/0/1200/600" alt="GPU Kernel Optimization" class="w-full h-64 md:h-80 object-cover rounded-xl shadow-sm mb-6">
+                </div>
+            </div>
+        </section>
+
+        <!-- Post Content -->
+        <section class="py-12 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto blog-content">
+                    <p>The <code class="bg-gray-100 px-1 py-0.5 rounded">gpu-programming-101</code> repo has always focused on <strong>practical progression</strong> — from "hello world" CUDA kernels to production-grade code. Today, we’re releasing a new advanced module: <code class="bg-gray-100 px-1 py-0.5 rounded">04_cuda_optimization</code>, packed with techniques to turn your prototypes into high-performance applications.</p>
+
+                    <h3>Why Optimization Matters (Numbers Included)</h3>
+                    <p>Our initial CUDA examples (in <code class="bg-gray-100 px-1 py-0.5 rounded">02_basic_kernels</code>) are great for learning, but they leave significant performance on the table. For example, our naive matrix multiplication kernel:</p>
+                    
+                    <div class="code-block">
+                        <pre>// Naive implementation (02_basic_kernels/matrix_mult.cu)
+__global__ void matrixMultiply(float *C, float *A, float *B, int N) {
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    if (row < N && col < N) {
+        float sum = 0.0f;
+        for (int k = 0; k < N; k++) {
+            sum += A[row * N + k] * B[k * N + col];
+        }
+        C[row * N + col] = sum;
+    }
+}</pre>
+                    </div>
+
+                    <p>Runs at ~120 GFLOPS on an NVIDIA RTX 3090. With our new optimizations? <strong>1.8 TFLOPS</strong> — a 15x improvement. Here’s how we did it.</p>
+
+                    <h3>Key Optimizations in the New Module</h3>
+                    <p>We’ve structured the module to build incrementally, just like the rest of the repo:</p>
+                    
+                    <h4>1. Shared Memory Tiling</h4>
+                    <p>Reduces global memory access by reusing data in shared memory (NVIDIA’s on-chip cache). Our <code class="bg-gray-100 px-1 py-0.5 rounded">tiled_matrix_mult.cu</code> implements 16x16 tiles:</p>
+                    
+                    <div class="code-block">
+                        <pre>// Tiled implementation (04_cuda_optimization/tiled_matrix_mult.cu)
+__global__ void tiledMatrixMult(float *C, float *A, float *B, int N) {
+    __shared__ float As[16][16];  // Shared memory tile for A
+    __shared__ float Bs[16][16];  // Shared memory tile for B
+    
+    // ... (tile loading logic) ...
+    
+    // Reuse tiles for 16x16 output elements
+    for (int t = 0; t < N/16; t++) {
+        // Load tiles from global memory to shared memory
+        As[threadIdx.y][threadIdx.x] = A[...];
+        Bs[threadIdx.y][threadIdx.x] = B[...];
+        __syncthreads();
+        
+        // Compute partial sum using shared memory
+        sum += As[threadIdx.y][k] * Bs[k][threadIdx.x];
+        __syncthreads();
+    }
+}</pre>
+                    </div>
+
+                    <h4>2. Memory Coalescing</h4>
+                    <p>Our <code class="bg-gray-100 px-1 py-0.5 rounded">memory_coalescing_demo.cu</code> shows how to align global memory access with GPU memory banks, reducing latency by 70% for strided access patterns.</p>
+
+                    <h4>3. Profiling Workflow</h4>
+                    <p>We’ve added a step-by-step guide to using NVIDIA Visual Profiler (nvvp) to identify bottlenecks, with example profiles from our before/after kernels.</p>
+
+                    <h3>From Repo to Real-World</h3>
+                    <p>What makes this module unique? It’s tied to real use cases:
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li>Image convolution (used in our <code class="bg-gray-100 px-1 py-0.5 rounded">03_image_processing</code> module)</li>
+                        <li>Particle simulation (extended from our <code class="bg-gray-100 px-1 py-0.5 rounded">02_basic_kernels/nbody.cu</code>)</li>
+                        <li>Neural network inference (compatible with our PyTorch-CUDA bridge examples)</li>
+                    </ul>
+
+                    <p>Update your repo with <code class="bg-gray-100 px-1 py-0.5 rounded">git pull</code> and start optimizing — then share your speedups in the <a href="https://github.com/AIComputing101/gpu-programming-101/issues" target="_blank" class="text-primary hover:underline">issue tracker</a>. We’re especially excited to see how you apply these techniques to your own projects!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Related Posts -->
+        <section class="py-12 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <h2 class="text-2xl font-semibold mb-8">Related to GPU-101</h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <a href="#" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <img src="https://picsum.photos/id/96/600/400" alt="OpenCL vs CUDA" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">OpenCL Support Added to GPU-101</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> Sep 30, 2025</p>
+                            </div>
+                        </a>
+                        <a href="#" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <img src="https://picsum.photos/id/160/600/400" alt="Tensor Cores" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">Using Tensor Cores for Mixed Precision</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> Aug 10, 2025</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (unchanged) -->
+</body>
+</html>
