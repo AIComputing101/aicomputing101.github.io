@@ -3,22 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RL Agent Improvements in RL-101 - AIComputing101</title>
-    <!-- Tailwind CSS + Fonts (same as above) -->
+    <title>Community Contributions: RL Agent Improvements - AIComputing101</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#7B61FF',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
     
     <style type="text/tailwindcss">
         @layer utilities {
-            .blog-content p { @apply mb-6 leading-relaxed; }
-            .blog-content h3 { @apply text-xl font-semibold mt-8 mb-4; }
-            .code-block { @apply bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm my-6; }
+            .content-auto {
+                content-visibility: auto;
+            }
+            .blog-content p {
+                @apply mb-6 leading-relaxed;
+            }
+            .blog-content h3 {
+                @apply text-xl font-semibold mt-8 mb-4;
+            }
         }
     </style>
 </head>
-<body class="font-inter bg-gray-50 text-gray-800">
-    <!-- Navigation (unchanged) -->
+<body class="font-inter bg-light text-dark antialiased">
+    <!-- Navigation -->
+    <header class="fixed w-full bg-white/90 backdrop-blur-sm shadow-sm z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="../index.html" class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+                    <i class="fa fa-cogs text-white text-xl"></i>
+                </div>
+                <span class="text-xl font-bold text-primary">AIComputing101</span>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="../index.html#about" class="font-medium hover:text-primary transition-colors">About</a>
+                <a href="../index.html#vision" class="font-medium hover:text-primary transition-colors">Vision</a>
+                <a href="../index.html#projects" class="font-medium hover:text-primary transition-colors">Projects</a>
+                <a href="index.html" class="font-medium text-primary transition-colors">Blog</a>
+                <a href="../index.html#about-us" class="font-medium hover:text-primary transition-colors">About Us</a>
+                <a href="https://github.com/AIComputing101" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                    <i class="fa fa-github"></i> GitHub
+                </a>
+            </nav>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-dark text-2xl">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-3 flex flex-col gap-4">
+                <a href="../index.html#about" class="py-2 font-medium hover:text-primary transition-colors">About</a>
+                <a href="../index.html#vision" class="py-2 font-medium hover:text-primary transition-colors">Vision</a>
+                <a href="../index.html#projects" class="py-2 font-medium hover:text-primary transition-colors">Projects</a>
+                <a href="index.html" class="py-2 font-medium text-primary transition-colors">Blog</a>
+                <a href="../index.html#about-us" class="py-2 font-medium hover:text-primary transition-colors">About Us</a>
+                <a href="https://github.com/AIComputing101" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors w-fit">
+                    <i class="fa fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </header>
 
     <main class="pt-24">
-        <!-- Post Header -->
+        <!-- Blog Post Header -->
         <section class="py-12 bg-gradient-to-br from-primary/5 to-secondary/5">
             <div class="container mx-auto px-4">
                 <div class="max-w-3xl mx-auto">
@@ -27,15 +98,15 @@
                         <span class="mx-2">•</span>
                         <span><i class="fa fa-tag mr-1"></i> Reinforcement Learning</span>
                         <span class="mx-2">•</span>
-                        <span><i class="fa fa-github mr-1"></i> <a href="https://github.com/AIComputing101/reinforcement-learning-101" target="_blank" class="hover:text-primary">reinforcement-learning-101</a></span>
+                        <span><i class="fa fa-user-o mr-1"></i> Raj RL</span>
                     </div>
                     <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-6">Community-Driven RL Agent Boost: 3x Faster Training in RL-101</h1>
-                    <img src="https://picsum.photos/id/160/1200/600" alt="RL Agent Training" class="w-full h-64 md:h-80 object-cover rounded-xl shadow-sm mb-6">
+                    <img src="https://picsum.photos/id/160/1200/600" alt="RL Agent Improvements" class="w-full h-64 md:h-80 object-cover rounded-xl shadow-sm mb-6">
                 </div>
             </div>
         </section>
 
-        <!-- Post Content -->
+        <!-- Blog Post Content -->
         <section class="py-12 bg-white">
             <div class="container mx-auto px-4">
                 <div class="max-w-3xl mx-auto blog-content">
@@ -44,11 +115,10 @@
                     <h3>Key Contributions We’re Celebrating</h3>
                     <p>Our community focused on turning our "foundational" agents (in <code class="bg-gray-100 px-1 py-0.5 rounded">02_basic_agents</code>) into production-ready systems, aligned with the repo’s goal of bridging POC and real-world use.</p>
 
-                    <h4>1. Priority Experience Replay (by @ml-engineer-jane)</h4>
+                    <h3>1. Priority Experience Replay (by @ml-engineer-jane)</h3>
                     <p>Our original DQN used uniform experience replay, which wastes time on low-impact transitions. @ml-engineer-jane implemented prioritized replay, weighting transitions by their temporal difference (TD) error:</p>
                     
-                    <div class="code-block">
-                        <pre># In 03_advanced_agents/dqn_prioritized.py
+                    <code class="bg-gray-100 px-1 py-0.5 rounded block my-4"># In 03_advanced_agents/dqn_prioritized.py
 class PrioritizedReplayBuffer:
     def __init__(self, capacity, alpha=0.6):
         self.capacity = capacity
@@ -69,15 +139,14 @@ class PrioritizedReplayBuffer:
         probabilities /= probabilities.sum()
         
         indices = np.random.choice(len(self.memory), batch_size, p=probabilities)
-        # ... (return weighted samples) ...</pre>
-                    </div>
+        # ... (return weighted samples) ...</code>
 
                     <p>Result: DQN solves LunarLander in 400 episodes (down from 1,200) with 2x higher average reward.</p>
 
-                    <h4>2. Distributed PPO (by @rl-researcher-kim)</h4>
+                    <h3>2. Distributed PPO (by @rl-researcher-kim)</h3>
                     <p>@rl-researcher-kim extended our single-threaded PPO implementation to use distributed sampling across 4 workers, leveraging our existing <code class="bg-gray-100 px-1 py-0.5 rounded">04_parallel_training</code> utilities. This reduces time-per-episode by 65%.</p>
 
-                    <h4>3. Hyperparameter Tuning Scripts (by @open-source-alec)</h4>
+                    <h3>3. Hyperparameter Tuning Scripts (by @open-source-alec)</h3>
                     <p>@open-source-alec added <code class="bg-gray-100 px-1 py-0.5 rounded">tuning/ray_tune_configs/</code>, which uses Ray Tune to optimize learning rates, batch sizes, and discount factors. The result? Our default PPO config now outperforms the previous best by 25%.</p>
 
                     <h3>Try the Improved Agents</h3>
@@ -100,20 +169,20 @@ class PrioritizedReplayBuffer:
         <section class="py-12 bg-gray-50">
             <div class="container mx-auto px-4">
                 <div class="max-w-3xl mx-auto">
-                    <h2 class="text-2xl font-semibold mb-8">Related to RL-101</h2>
+                    <h2 class="text-2xl font-semibold mb-8">Related Posts</h2>
                     <div class="grid md:grid-cols-2 gap-6">
-                        <a href="#" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                            <img src="https://picsum.photos/id/111/600/400" alt="Atari Agents" class="w-full h-40 object-cover">
+                        <a href="quantum-ibm-integration.html" class="bg-white rounded-xl overflow-hidden shadow-sm card-hover">
+                            <img src="https://picsum.photos/id/180/600/400" alt="Quantum IBM Integration" class="w-full h-40 object-cover">
                             <div class="p-4">
-                                <h3 class="font-semibold mb-1">Atari Game Agents: New Module</h3>
-                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> Sep 10, 2025</p>
+                                <h3 class="font-semibold mb-1">Quantum-101 Gets IBM Quantum Integration</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> Oct 10, 2025</p>
                             </div>
                         </a>
-                        <a href="#" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                            <img src="https://picsum.photos/id/201/600/400" alt="RL Safety" class="w-full h-40 object-cover">
+                        <a href="cuda-optimization.html" class="bg-white rounded-xl overflow-hidden shadow-sm card-hover">
+                            <img src="https://picsum.photos/id/0/600/400" alt="CUDA Optimization" class="w-full h-40 object-cover">
                             <div class="p-4">
-                                <h3 class="font-semibold mb-1">Safe RL: Constrained PPO Implementation</h3>
-                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> Aug 5, 2025</p>
+                                <h3 class="font-semibold mb-1">Optimizing CUDA Kernels for Production</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> Oct 5, 2025</p>
                             </div>
                         </a>
                     </div>
@@ -122,6 +191,130 @@ class PrioritizedReplayBuffer:
         </section>
     </main>
 
-    <!-- Footer (unchanged) -->
+    <!-- Footer -->
+    <footer class="bg-dark text-white/80 py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
+                            <i class="fa fa-cogs text-primary text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">AIComputing101</span>
+                    </div>
+                    <p class="mb-4">
+                        Collaborative learning for AI and computational systems.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://github.com/AIComputing101" target="_blank" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-youtube-play text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-discord text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="../index.html#about" class="hover:text-white transition-colors">Our Mission</a></li>
+                        <li><a href="../index.html#vision" class="hover:text-white transition-colors">Our Vision</a></li>
+                        <li><a href="../index.html#projects" class="hover:text-white transition-colors">Projects</a></li>
+                        <li><a href="index.html" class="hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="../index.html#about-us" class="hover:text-white transition-colors">About Us</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="https://github.com/AIComputing101?tab=repositories" target="_blank" class="hover:text-white transition-colors">All Repositories</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contribution Guide</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Learning Paths</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">FAQ</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Stay Updated</h4>
+                    <p class="mb-4 text-sm">Subscribe to our newsletter for project updates and new resources.</p>
+                    <form class="flex">
+                        <input type="email" placeholder="Your email" class="px-4 py-2 rounded-l-lg w-full text-dark focus:outline-none text-sm">
+                        <button type="submit" class="bg-primary px-4 py-2 rounded-r-lg hover:bg-primary/90 transition-colors">
+                            <i class="fa fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-8 text-center text-sm">
+                <p>&copy; 2025 AIComputing101. All projects are open-source under MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            const icon = mobileMenuBtn.querySelector('i');
+            if (mobileMenu.classList.contains('hidden')) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            } else {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                        const icon = mobileMenuBtn.querySelector('i');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
+            });
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('py-2', 'shadow');
+                header.classList.remove('py-3');
+            } else {
+                header.classList.add('py-3');
+                header.classList.remove('py-2', 'shadow');
+            }
+        });
+    </script>
 </body>
 </html>
