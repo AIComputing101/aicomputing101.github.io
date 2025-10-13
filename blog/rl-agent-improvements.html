@@ -7,10 +7,16 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <!-- Google Fonts - Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <!-- Add language support (e.g., Python, C++) -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
+
     <!-- Tailwind Configuration -->
     <script>
         tailwind.config = {
@@ -41,6 +47,18 @@
             .blog-content h3 {
                 @apply text-xl font-semibold mt-8 mb-4;
             }
+            /* Code block styles */
+            .code-block {
+                @apply bg-gray-900 text-gray-100 rounded-lg p-4 my-6 overflow-x-auto;
+                font-family: 'Fira Code', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+                line-height: 1.6;
+                font-size: 0.875rem; /* 14px */
+            }
+            /* Inline code styles */
+            .blog-content code:not(.code-block code) {
+                @apply bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-medium;
+                font-family: 'Fira Code', monospace;
+            }            
         }
     </style>
 </head>
@@ -117,8 +135,8 @@
 
                     <h3>1. Priority Experience Replay (by @ml-engineer-jane)</h3>
                     <p>Our original DQN used uniform experience replay, which wastes time on low-impact transitions. @ml-engineer-jane implemented prioritized replay, weighting transitions by their temporal difference (TD) error:</p>
-                    
-                    <code class="bg-gray-100 px-1 py-0.5 rounded block my-4"># In 03_advanced_agents/dqn_prioritized.py
+
+                    <pre class="code-block"><code class="language-python"># In 03_advanced_agents/dqn_prioritized.py
 class PrioritizedReplayBuffer:
     def __init__(self, capacity, alpha=0.6):
         self.capacity = capacity
@@ -139,7 +157,7 @@ class PrioritizedReplayBuffer:
         probabilities /= probabilities.sum()
         
         indices = np.random.choice(len(self.memory), batch_size, p=probabilities)
-        # ... (return weighted samples) ...</code>
+        # ... (return weighted samples) ...</code></pre>
 
                     <p>Result: DQN solves LunarLander in 400 episodes (down from 1,200) with 2x higher average reward.</p>
 

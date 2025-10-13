@@ -7,7 +7,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <!-- Google Fonts - Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Prism.js for syntax highlighting -->
@@ -133,7 +133,7 @@
                     <h3>Why Optimization Matters (Numbers Included)</h3>
                     <p>Our initial CUDA examples (in <code class="bg-gray-100 px-1 py-0.5 rounded">02_basic_kernels</code>) are great for learning, but they leave significant performance on the table. For example, our naive matrix multiplication kernel:</p>
                     
-                    <code class="bg-gray-100 px-1 py-0.5 rounded block my-4">// Naive implementation (02_basic_kernels/matrix_mult.cu)
+                    <pre class="code-block"><code class="language-c">// Naive implementation (02_basic_kernels/matrix_mult.cu)
 __global__ void matrixMultiply(float *C, float *A, float *B, int N) {
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = blockIdx.x * blockDim.x + threadIdx.x;
@@ -145,7 +145,7 @@ __global__ void matrixMultiply(float *C, float *A, float *B, int N) {
         }
         C[row * N + col] = sum;
     }
-}</code>
+}</code></pre>
 
                     <p>Runs at ~120 GFLOPS on an NVIDIA RTX 3090. With our new optimizations? <strong>1.8 TFLOPS</strong> — a 15x improvement. Here’s how we did it.</p>
 
@@ -155,7 +155,7 @@ __global__ void matrixMultiply(float *C, float *A, float *B, int N) {
                     <h3>1. Shared Memory Tiling</h3>
                     <p>Reduces global memory access by reusing data in shared memory (NVIDIA’s on-chip cache). Our <code class="bg-gray-100 px-1 py-0.5 rounded">tiled_matrix_mult.cu</code> implements 16x16 tiles:</p>
                     
-                    <code class="bg-gray-100 px-1 py-0.5 rounded block my-4">// Tiled implementation (04_cuda_optimization/tiled_matrix_mult.cu)
+                    <pre class="code-block"><code class="language-c">// Tiled implementation (04_cuda_optimization/tiled_matrix_mult.cu)
 __global__ void tiledMatrixMult(float *C, float *A, float *B, int N) {
     __shared__ float As[16][16];  // Shared memory tile for A
     __shared__ float Bs[16][16];  // Shared memory tile for B
@@ -173,26 +173,7 @@ __global__ void tiledMatrixMult(float *C, float *A, float *B, int N) {
         sum += As[threadIdx.y][k] * Bs[k][threadIdx.x];
         __syncthreads();
     }
-}</code>
-                    <pre class="code-block"><code class="language-c">// Tiled implementation (04_cuda_optimization/tiled_matrix_mult.cu)
-                    __global__ void tiledMatrixMult(float *C, float *A, float *B, int N) {
-                        __shared__ float As[16][16];  // Shared memory tile for A
-                        __shared__ float Bs[16][16];  // Shared memory tile for B
-                        
-                        // ... (tile loading logic) ...
-                        
-                        // Reuse tiles for 16x16 output elements
-                        for (int t = 0; t < N/16; t++) {
-                            // Load tiles from global memory to shared memory
-                            As[threadIdx.y][threadIdx.x] = A[...];
-                            Bs[threadIdx.y][threadIdx.x] = B[...];
-                            __syncthreads();
-                            
-                            // Compute partial sum using shared memory
-                            sum += As[threadIdx.y][k] * Bs[k][threadIdx.x];
-                            __syncthreads();
-                        }
-                    }</code></pre>
+}</code></pre>
 
                     <h3>2. Memory Coalescing</h3>
                     <p>Our <code class="bg-gray-100 px-1 py-0.5 rounded">memory_coalescing_demo.cu</code> shows how to align global memory access with GPU memory banks, reducing latency by 70% for strided access patterns.</p>
