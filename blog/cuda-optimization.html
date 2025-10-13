@@ -10,7 +10,13 @@
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <!-- Google Fonts - Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <!-- Add language support (e.g., Python, C++) -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
+
     <!-- Tailwind Configuration -->
     <script>
         tailwind.config = {
@@ -41,6 +47,18 @@
             .blog-content h3 {
                 @apply text-xl font-semibold mt-8 mb-4;
             }
+            /* Code block styles */
+            .code-block {
+                @apply bg-gray-900 text-gray-100 rounded-lg p-4 my-6 overflow-x-auto;
+                font-family: 'Fira Code', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+                line-height: 1.6;
+                font-size: 0.875rem; /* 14px */
+            }
+            /* Inline code styles */
+            .blog-content code:not(.code-block code) {
+                @apply bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-medium;
+                font-family: 'Fira Code', monospace;
+            }
         }
     </style>
 </head>
@@ -50,7 +68,7 @@
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <a href="../index.html" class="flex items-center gap-2">
                 <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                    <i class="fa fa-cogs text-white text-xl"></i>
+                    <i class="fas fa-bolt text-white text-xl"></i>
                 </div>
                 <span class="text-xl font-bold text-primary">AIComputing101</span>
             </a>
@@ -156,6 +174,25 @@ __global__ void tiledMatrixMult(float *C, float *A, float *B, int N) {
         __syncthreads();
     }
 }</code>
+                    <pre class="code-block"><code class="language-c">// Tiled implementation (04_cuda_optimization/tiled_matrix_mult.cu)
+                    __global__ void tiledMatrixMult(float *C, float *A, float *B, int N) {
+                        __shared__ float As[16][16];  // Shared memory tile for A
+                        __shared__ float Bs[16][16];  // Shared memory tile for B
+                        
+                        // ... (tile loading logic) ...
+                        
+                        // Reuse tiles for 16x16 output elements
+                        for (int t = 0; t < N/16; t++) {
+                            // Load tiles from global memory to shared memory
+                            As[threadIdx.y][threadIdx.x] = A[...];
+                            Bs[threadIdx.y][threadIdx.x] = B[...];
+                            __syncthreads();
+                            
+                            // Compute partial sum using shared memory
+                            sum += As[threadIdx.y][k] * Bs[k][threadIdx.x];
+                            __syncthreads();
+                        }
+                    }</code></pre>
 
                     <h3>2. Memory Coalescing</h3>
                     <p>Our <code class="bg-gray-100 px-1 py-0.5 rounded">memory_coalescing_demo.cu</code> shows how to align global memory access with GPU memory banks, reducing latency by 70% for strided access patterns.</p>
@@ -209,7 +246,7 @@ __global__ void tiledMatrixMult(float *C, float *A, float *B, int N) {
                 <div>
                     <div class="flex items-center gap-2 mb-4">
                         <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
-                            <i class="fa fa-cogs text-primary text-xl"></i>
+                            <i class="fas fa-bolt text-primary text-xl"></i>
                         </div>
                         <span class="text-xl font-bold text-white">AIComputing101</span>
                     </div>
