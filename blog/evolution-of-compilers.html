@@ -41,6 +41,9 @@
             .blog-content h3 {
                 @apply text-xl font-semibold mt-8 mb-4 text-dark;
             }
+            .blog-content h4 {
+                @apply text-lg font-medium mt-6 mb-3 text-dark;
+            }
             .blog-content ul {
                 @apply list-disc pl-6 mb-6 space-y-2;
             }
@@ -119,11 +122,11 @@
                         <span class="mx-2">•</span>
                         <span><i class="fa fa-tag mr-1"></i> Compilers, GPU, Quantum</span>
                         <span class="mx-2">•</span>
-                        <span><i class="fa fa-user-o mr-1"></i> Dev CompileMaster</span>
+                        <span><i class="fa fa-user-o mr-1"></i> Stephen Shao</span>
                     </div>
                     <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-6 leading-tight">The Evolution of Compilers: From "Return 42" POC to GPUs to Quantum-Classical Hybrids</h1>
                     <img src="https://picsum.photos/id/1/1200/600" alt="Compiler Evolution: CPU to GPU to Quantum" class="w-full h-64 md:h-80 object-cover rounded-xl shadow-sm mb-6">
-                    <p class="text-gray-600 italic">Tracing how compilers grew from simple "return 42" translators to orchestrators of GPUs and quantum-classical systems.</p>
+                    <p class="text-gray-600 italic">Tracing how compilers grew from simple "return 42" translators to orchestrators of GPUs, ML-focused tools like Triton, and quantum-classical systems.</p>
                 </div>
             </div>
         </section>
@@ -161,10 +164,10 @@
                         <li><strong>Library Integration</strong>: They link to optimized libraries (e.g., OpenBLAS for linear algebra) instead of reinventing wheels—saving months of work.</li>
                     </ul>
 
-                    <h3>3. GPU Compilers: NVCC (NVIDIA) and ROCm HIP (AMD) – Taming Parallelism</h3>
-                    <p>GPUs revolutionized computing with thousands of cores, but they demanded compilers that could orchestrate parallelism. NVIDIA’s NVCC and AMD’s ROCm HIP rose to the challenge—each with unique approaches, but shared goals of turning high-level code into GPU-accelerated execution.</p>
+                    <h3>3. GPU Compilers: From Traditional (NVCC, ROCm HIP) to ML-Focused (Triton)</h3>
+                    <p>GPUs revolutionized computing with thousands of cores, but they demanded compilers that could orchestrate parallelism. The first wave (NVIDIA’s NVCC, AMD’s ROCm HIP) focused on general-purpose GPU (GPGPU) tasks. A newer evolution—Triton—refined this for machine learning (ML), balancing programmability with ML-specific performance.</p>
 
-                    <h4 class="text-lg font-medium mt-6 mb-3">NVIDIA’s NVCC: CUDA Ecosystem Specialization</h4>
+                    <h4>NVIDIA’s NVCC: CUDA Ecosystem Specialization</h4>
                     <p>NVCC (NVIDIA CUDA Compiler) is tightly integrated with NVIDIA’s GPU hardware, prioritizing performance for NVIDIA’s SM (Streaming Multiprocessor) architecture:</p>
                     <ul>
                         <li><strong>Heterogeneous Code Splitting</strong>:
@@ -183,7 +186,7 @@
                         <li><strong>Library Integration</strong>: Relies on CUDA-specific libraries like <code>cuBLAS</code> (GPU linear algebra), <code>cuFFT</code> (Fourier transforms), and <code>Thrust</code> (parallel algorithms).</li>
                     </ul>
 
-                    <h4 class="text-lg font-medium mt-6 mb-3">AMD’s ROCm HIP: Portability-First Parallelism</h4>
+                    <h4>AMD’s ROCm HIP: Portability-First Parallelism</h4>
                     <p>AMD’s ROCm (Radeon Open Compute) uses HIP (Heterogeneous-Compute Interface for Portability) to balance cross-vendor compatibility with AMD GPU performance. It’s designed to let developers write code once and run it on both AMD and NVIDIA GPUs:</p>
                     <ul>
                         <li><strong>HIP: A Familiar, Portable Abstraction</strong>:
@@ -205,59 +208,98 @@
                         </li>
                     </ul>
 
-                    <h4 class="text-lg font-medium mt-6 mb-3">NVCC vs. ROCm HIP: Key Differences</h4>
+                    <h4>Triton Compiler: ML-Focused GPU Programming for Everyone</h4>
+                    <p>Developed by OpenAI (now open-source), Triton represents a shift in GPU compiler design: it prioritizes <strong>ML workloads</strong> and <strong>programmer productivity</strong> without sacrificing performance. Unlike NVCC/HIP (which require low-level kernel writing), Triton lets developers write GPU-accelerated ML code in Python-like syntax.</p>
+                    <ul>
+                        <li><strong>Core Philosophy</strong>: "Write once, run fast on any GPU." Triton abstracts away GPU-specific details (threads, warps, shared memory) so ML researchers can focus on algorithms, not hardware.</li>
+                        <li><strong>Compilation Pipeline</strong>:
+                            <ol class="list-decimal pl-6 mt-1 mb-1">
+                                <li><strong>High-Level Input</strong>: Triton kernels written in Python (e.g., a matrix multiplication function using Triton’s <code>tl.dot</code> for tensor operations).</li>
+                                <li><strong>Frontend</strong>: Parses Python-like syntax into a <strong>Triton IR</strong>—an ML-optimized IR designed for tensor operations (e.g., handling batch dimensions, data types like FP16/FP8).</li>
+                                <li><strong>Optimizations</strong>: ML-specific passes:
+                                    <ul class="list-disc pl-6 mt-1 mb-1">
+                                        <li><strong>Autotuning</strong>: Tests different kernel configurations (block sizes, memory layouts) to find the fastest one for the target GPU.</li>
+                                        <li><strong>Tensor Coalescing</strong>: Groups memory accesses to reduce GPU memory latency (critical for ML’s large tensor operations).</li>
+                                        <li><strong>Operator Fusion</strong>: Merges small tensor operations (e.g., add + relu) into a single kernel to avoid memory bottlenecks.</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Codegen</strong>: Translates optimized Triton IR to PTX (NVIDIA) or LLVM IR (AMD/CPU), then to hardware-specific binaries (cubin for NVIDIA, code objects for AMD).</li>
+                            </ol>
+                        </li>
+                        <li><strong>Framework Integration</strong>: Tightly integrated with PyTorch and TensorFlow—developers can call Triton kernels directly from ML models (e.g., replacing PyTorch’s built-in <code>torch.matmul</code> with a custom Triton kernel).</li>
+                        <li><strong>Why It’s an Evolution</strong>: Triton solves a key pain point of NVCC/HIP: ML researchers often aren’t GPU experts. It lets them write high-performance GPU code without learning low-level CUDA/HIP syntax—closing the gap between ML innovation and hardware performance.</li>
+                    </ul>
+
+                    <h4>GPU Compiler Comparison: NVCC vs. ROCm HIP vs. Triton</h4>
                     <table>
                         <thead>
                             <tr>
                                 <th>Aspect</th>
                                 <th>NVIDIA NVCC</th>
                                 <th>AMD ROCm HIP</th>
+                                <th>Triton Compiler</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>GPU IR</td>
-                                <td>PTX (proprietary, NVIDIA-specific)</td>
-                                <td>LLVM IR (open, shared with CPUs)</td>
+                                <td>Primary Focus</td>
+                                <td>General GPGPU, NVIDIA-only</td>
+                                <td>General GPGPU, cross-vendor</td>
+                                <td>ML workloads (tensors), cross-vendor</td>
                             </tr>
                             <tr>
-                                <td>Binary Format</td>
-                                <td>Cubin (tied to NVIDIA SMs)</td>
-                                <td>Code Objects (AMD CDNA-focused)</td>
+                                <td>Input Syntax</td>
+                                <td>C/C++ with CUDA extensions</td>
+                                <td>C/C++ with HIP extensions (CUDA-like)</td>
+                                <td>Python-like (Triton dialect)</td>
                             </tr>
                             <tr>
-                                <td>Portability</td>
-                                <td>NVIDIA GPUs only</td>
-                                <td>Cross-vendor (AMD/NVIDIA via HIP)</td>
+                                <td>IR</td>
+                                <td>PTX (GPU-agnostic)</td>
+                                <td>LLVM IR (shared with CPU)</td>
+                                <td>Triton IR (ML-optimized)</td>
                             </tr>
                             <tr>
-                                <td>Toolchain Base</td>
-                                <td>Custom frontend + LLVM backend</td>
-                                <td>HIP-Clang (open-source LLVM)</td>
+                                <td>Key Strength</td>
+                                <td>NVIDIA hardware optimization</td>
+                                <td>Cross-vendor portability</td>
+                                <td>ML productivity + autotuning</td>
+                            </tr>
+                            <tr>
+                                <td>Target Users</td>
+                                <td>GPGPU developers, NVIDIA-focused teams</td>
+                                <td>Cross-vendor GPGPU developers</td>
+                                <td>ML researchers, PyTorch/TensorFlow users</td>
                             </tr>
                         </tbody>
                     </table>
 
-                    <h4 class="text-lg font-medium mt-6 mb-3">Best Practices for GPU Compilers</h4>
+                    <h4>Best Practices for Modern GPU Compilers</h4>
                     <ol>
-                        <li><strong>Leverage Hardware-Specific Libraries</strong>: Use <code>cuBLAS</code>/<code>hipBLAS</code> instead of handwritten loops—they’re tuned for GPU memory hierarchies (global, shared, L1 cache).</li>
-                        <li><strong>Embrace Abstraction</strong>: Let compilers handle thread management (e.g., <code>threadIdx</code>/<code>hipThreadIdx</code>). Focus on algorithm logic, not low-level parallelism.</li>
-                        <li><strong>Prioritize Portability with HIP</strong>: If targeting multiple GPU vendors, use HIP to write once and compile for both AMD and NVIDIA.</li>
+                        <li><strong>Choose the Right Tool for the Job</strong>: Use NVCC/HIP for general GPGPU tasks (e.g., scientific computing), Triton for ML workloads (e.g., custom tensor operations).</li>
+                        <li><strong>Leverage Autotuning (Triton)</strong>: Let Triton’s autotuner optimize kernel configurations—manual tuning is rarely better for ML’s variable tensor sizes.</li>
+                        <li><strong>Prioritize Portability</strong>: Use HIP or Triton if you need to support both NVIDIA and AMD GPUs (avoid vendor lock-in).</li>
                     </ol>
 
                     <h3>4. CUDA-Q: Quantum-Classical Hybrids</h3>
                     <p>The next frontier? Quantum computing. Compilers like NVIDIA’s CUDA-Q extend GPU compiler principles to quantum processors, linking classical CPU/GPU code with quantum circuits (e.g., <code>h(q)</code> for Hadamard gates) via a new abstraction layer: <strong>Quantum IR (QIR)</strong>.</p>
-                    <p>CUDA-Q splits code into three paths: classical CPU/GPU logic (compiled via NVCC/HIP), quantum circuits (compiled to QIR → OpenQASM), and runtime integration with quantum hardware (e.g., NVIDIA DGX Quantum) or simulators (via <code>cuQuantum</code>).</p>
+                    <p>CUDA-Q splits code into three paths: classical CPU/GPU logic (compiled via NVCC/HIP/Triton), quantum circuits (compiled to QIR → OpenQASM), and runtime integration with quantum hardware (e.g., NVIDIA DGX Quantum) or simulators (via <code>cuQuantum</code>).</p>
 
-                    <h3>The Evolutionary Thread: Abstraction + Hardware Alignment</h3>
-                    <p>Every step in compiler evolution boils down to two things:</p>
+                    <h3>The Evolutionary Thread: Abstraction + Specialization</h3>
+                    <p>Every step in compiler evolution boils down to two trends:</p>
                     <ol>
-                        <li><strong>Abstraction Layers</strong>: From your POC’s TACKY IR to CUDA-Q’s QIR, compilers use IRs to keep code portable while adapting to hardware.</li>
-                        <li><strong>Hardware & Library Synergy</strong>: Compilers don’t work in isolation—they’re gateways to optimized libraries (BLAS, cuQuantum) and specialized hardware (GPUs, quantum processors).</li>
+                        <li><strong>Abstraction Layers</strong>: From your POC’s TACKY IR to Triton’s ML-optimized IR and CUDA-Q’s QIR, compilers use IRs to keep code portable while adapting to hardware. Each new IR solves a specific problem (e.g., Triton IR for tensors, QIR for quantum gates).</li>
+                        <li><strong>Domain Specialization</strong>: Compilers evolved from general-purpose tools (minimal C, GCC) to domain-specific ones:
+                            <ul class="list-disc pl-6 mt-1 mb-1">
+                                <li>NVCC/HIP: Specialized for GPGPU parallelism.</li>
+                                <li>Triton: Specialized for ML’s tensor operations and researcher productivity.</li>
+                                <li>CUDA-Q: Specialized for quantum-classical hybrid workflows.</li>
+                            </ul>
+                        </li>
                     </ol>
-                    <p>Your minimal compiler taught you the basics. Modern compilers teach you the rest: a compiler’s true job is to make hard hardware problems easy to solve—without sacrificing speed. Whether you’re writing a "return 42" POC or a quantum-classical algorithm, that’s the evolution that matters.</p>
+                    <p>Your minimal compiler taught you the basics. Modern compilers teach you the rest: a compiler’s true job is to make hard hardware problems easy to solve—without sacrificing speed. Whether you’re writing a "return 42" POC, a Triton kernel for ML, or a CUDA-Q quantum circuit, that’s the evolution that matters.</p>
 
-                    <p class="font-medium mt-8">Final Tip: Start small (like your POC!) when learning new compilers. Master how NVCC/HIP splits host/device code before jumping to CUDA-Q—each stage builds on the last. Happy compiling!</p>
+                    <p class="font-medium mt-8">Final Tip: Start small (like your POC!) when learning new compilers. Master how NVCC/HIP splits host/device code, then try a simple Triton kernel (e.g., matrix multiplication) before jumping to CUDA-Q—each stage builds on the last. Happy compiling!</p>
                 </div>
             </div>
         </section>
@@ -275,10 +317,10 @@
                                 <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> Oct 8, 2025</p>
                             </div>
                         </a>
-                        <a href="rocm-hip-best-practices.html" class="bg-white rounded-xl overflow-hidden shadow-sm card-hover">
-                            <img src="https://picsum.photos/id/119/600/400" alt="ROCm HIP Best Practices" class="w-full h-40 object-cover">
+                        <a href="triton-kernels-for-pytorch.html" class="bg-white rounded-xl overflow-hidden shadow-sm card-hover">
+                            <img src="https://picsum.photos/id/119/600/400" alt="Triton Kernels for PyTorch" class="w-full h-40 object-cover">
                             <div class="p-4">
-                                <h3 class="font-semibold mb-1">ROCm HIP Best Practices for Cross-Vendor GPU Code</h3>
+                                <h3 class="font-semibold mb-1">Writing Fast ML Kernels with Triton & PyTorch</h3>
                                 <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> Oct 12, 2025</p>
                             </div>
                         </a>
