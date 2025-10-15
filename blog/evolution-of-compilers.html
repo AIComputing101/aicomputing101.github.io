@@ -31,9 +31,6 @@
     </script>
     
     <style type="text/tailwindcss">
-        /* Replaced Tailwind @apply rules with plain CSS equivalents to avoid linter warnings
-           Keep the original utility classes in the markup; these rules provide fallback styles
-           in environments where Tailwind's postcss processor isn't available. */
         .content-auto { content-visibility: auto; }
         .blog-content p { margin-bottom: 1.5rem; line-height: 1.7; }
         .blog-content h3 { font-size: 1.125rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem; color: #1E293B; }
@@ -46,6 +43,16 @@
         .blog-content th { background-color: #F9FAFB; font-weight: 600; }
         .card-hover { transition: all 0.3s ease; }
         .card-hover:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.08); transform: translateY(-4px); }
+        .diagram { 
+            font-family: monospace; 
+            white-space: pre; 
+            background-color: #f8fafc; 
+            padding: 1rem; 
+            border-radius: 0.5rem; 
+            border: 1px solid #e2e8f0;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
     </style>
 </head>
 <body class="font-inter bg-light text-dark antialiased">
@@ -120,6 +127,15 @@
                     <h3>1. The Minimal Compiler: Foundations of "Lex → Parse → Codegen"</h3>
                     <p>Your POC compiler is the "hello world" of compiler design—and it’s where every key concept starts. Here’s its role:</p>
 
+                    <div class="diagram">
+Minimal Compiler Workflow
+-------------------------
+Source Code          →    Tokens            →    AST             →    IR             →    Machine Code
+("return 42;")       →    (via Lexer)       →    (via Parser)    →    (IR Generator)  →    (Codegen)
+                           [TOKEN_RETURN,     [ReturnStmt {      [IR_Return {       [movl $42, %eax;
+                            TOKEN_INTEGER}]     value=42 }]        value=42 }]         ret]
+                    </div>
+
                     <ul>
                         <li><strong>Core Stages</strong>: It turns raw text (<code>return 42;</code>) into executable code via four steps:
                             <ol class="list-decimal pl-6 mt-2 mb-2">
@@ -135,6 +151,18 @@
 
                     <h3>2. Modern C++ Compilers (GCC, Clang): Optimizing for General-Purpose CPUs</h3>
                     <p>As code grew more complex (think C++ templates, OOP, or multi-threading), compilers like GCC 14 or Clang 17 built on your POC’s core stages but added critical layers:</p>
+
+                    <div class="diagram">
+Modern C++ Compiler (GCC/Clang)
+-------------------------------
+Source Code      →    Preprocessor    →    Tokens/AST    →    Optimization Passes    →    Machine Code
+(C++ Code)       →    (Macros, #include)    (Analysis)     →    (Constant folding,    →    (x86_64/ARM/
+                                                              vectorization, etc.)     other ISAs)
+                                                                      ↓
+                                                               Link to Libraries
+                                                              (OpenBLAS, etc.)
+                    </div>
+
                     <ul>
                         <li><strong>Advanced Optimizations</strong>: They turn naive code into fast code:
                             <ul class="list-disc pl-6 mt-1 mb-1">
@@ -150,6 +178,27 @@
 
                     <h4>NVIDIA’s NVCC: CUDA Ecosystem Specialization</h4>
                     <p>NVCC (NVIDIA CUDA Compiler) is tightly integrated with NVIDIA’s GPU hardware, prioritizing performance for NVIDIA’s SM (Streaming Multiprocessor) architecture:</p>
+
+                    <div class="diagram">
+NVIDIA NVCC Workflow
+--------------------
+CUDA Source Code
+    │
+    ├─→ Host Code ─→ LLVM IR ─→ x86_64/ARM Assembly
+    │
+    └─→ Device Code
+         │
+         ├─→ Parse CUDA Extensions (__global__, threadIdx)
+         │
+         ├─→ Generate PTX (Parallel Thread Execution)
+         │
+         ├─→ Optimize for NVIDIA SM Architecture
+         │
+         └─→ Compile to Cubin (GPU-specific binary)
+              │
+              └─→ Link with CUDA Libraries (cuBLAS, cuFFT)
+                    </div>
+
                     <ul>
                         <li><strong>Heterogeneous Code Splitting</strong>:
                             <ul class="list-disc pl-6 mt-1 mb-1">
@@ -169,6 +218,27 @@
 
                     <h4>AMD’s ROCm HIP: Portability-First Parallelism</h4>
                     <p>AMD’s ROCm (Radeon Open Compute) uses HIP (Heterogeneous-Compute Interface for Portability) to balance cross-vendor compatibility with AMD GPU performance. It’s designed to let developers write code once and run it on both AMD and NVIDIA GPUs:</p>
+
+                    <div class="diagram">
+AMD ROCm HIP Workflow
+---------------------
+HIP Source Code
+    │
+    ├─→ Host Code ─→ LLVM IR ─→ x86_64/ARM Assembly
+    │
+    └─→ Device Code
+         │
+         ├─→ Parse HIP Extensions (__global__, hipThreadIdx_x)
+         │
+         ├─→ Generate LLVM IR (with AMD GPU metadata)
+         │
+         ├─→ Optimize for AMD CDNA Architecture
+         │
+         └─→ Compile to Code Objects (AMD binary format)
+              │
+              └─→ Link with ROCm Libraries (hipBLAS, hipFFT)
+                    </div>
+
                     <ul>
                         <li><strong>HIP: A Familiar, Portable Abstraction</strong>:
                             <p>HIP mimics CUDA syntax (e.g., <code>__global__</code> for kernels) but compiles to AMD’s hardware via <strong>HIP-Clang</strong>—a LLVM-based compiler that parses HIP code and splits it into host/device paths.</p>
@@ -191,6 +261,30 @@
 
                     <h4>Triton Compiler: ML-Focused GPU Programming for Everyone</h4>
                     <p>Developed by OpenAI (now open-source), Triton represents a shift in GPU compiler design: it prioritizes <strong>ML workloads</strong> and <strong>programmer productivity</strong> without sacrificing performance. Unlike NVCC/HIP (which require low-level kernel writing), Triton lets developers write GPU-accelerated ML code in Python-like syntax.</p>
+
+                    <div class="diagram">
+Triton Compiler Workflow
+------------------------
+Python-like Triton Code
+    │
+    ├─→ Parse Triton Syntax
+    │
+    ├─→ Generate Triton IR (ML-optimized)
+    │
+    ├─→ ML-specific Optimizations
+    │   (Autotuning, Tensor Coalescing, Operator Fusion)
+    │
+    └─→ Generate Target Code
+         │
+         ├─→ NVIDIA GPUs: PTX → Cubin
+         │
+         ├─→ AMD GPUs: LLVM IR → Code Objects
+         │
+         └─→ CPUs: LLVM IR → x86_64/ARM Assembly
+              │
+              └─→ Integration with PyTorch/TensorFlow
+                    </div>
+
                     <ul>
                         <li><strong>Core Philosophy</strong>: "Write once, run fast on any GPU." Triton abstracts away GPU-specific details (threads, warps, shared memory) so ML researchers can focus on algorithms, not hardware.</li>
                         <li><strong>Compilation Pipeline</strong>:
@@ -264,6 +358,31 @@
 
                     <h3>4. CUDA-Q: Quantum-Classical Hybrids</h3>
                     <p>The next frontier? Quantum computing. Compilers like NVIDIA’s CUDA-Q extend GPU compiler principles to quantum processors, linking classical CPU/GPU code with quantum circuits (e.g., <code>h(q)</code> for Hadamard gates) via a new abstraction layer: <strong>Quantum IR (QIR)</strong>.</p>
+
+                    <div class="diagram">
+CUDA-Q Workflow
+---------------
+Quantum-Classical Code
+    │
+    ├─→ Classical Code (CPU/GPU)
+    │     │
+    │     └─→ Compiled via NVCC/HIP/Triton
+    │
+    └─→ Quantum Code
+          │
+          ├─→ Parse Quantum Operations (h(q), cnot(q1,q2))
+          │
+          ├─→ Generate Quantum IR (QIR)
+          │
+          ├─→ Translate to OpenQASM
+          │
+          └─→ Execute on
+               │
+               ├─→ Quantum Hardware (e.g., NVIDIA DGX Quantum)
+               │
+               └─→ Quantum Simulators (via cuQuantum)
+                    </div>
+
                     <p>CUDA-Q splits code into three paths: classical CPU/GPU logic (compiled via NVCC/HIP/Triton), quantum circuits (compiled to QIR → OpenQASM), and runtime integration with quantum hardware (e.g., NVIDIA DGX Quantum) or simulators (via <code>cuQuantum</code>).</p>
 
                     <h3>The Evolutionary Thread: Abstraction + Specialization</h3>
