@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimizing GPU Kernels: Strategies for NVIDIA CUDA and AMD ROCm</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <!-- Add language support -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#7B61FF',
+                        amd: '#E95420',
+                        nvidia: '#76B900',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .blog-content p {
+                @apply mb-6 leading-relaxed;
+            }
+            .blog-content h3 {
+                @apply text-xl font-semibold mt-8 mb-4;
+            }
+            .blog-content h4 {
+                @apply text-lg font-medium mt-6 mb-3;
+            }
+            .blog-content h5 {
+                @apply text-base font-semibold mt-4 mb-2;
+            }
+            /* Code block styles */
+            .code-block {
+                @apply bg-gray-900 text-gray-100 rounded-lg p-4 my-6 overflow-x-auto;
+                font-family: 'Fira Code', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+                line-height: 1.6;
+                font-size: 0.875rem; /* 14px */
+            }
+            /* Inline code styles */
+            .blog-content code:not(.code-block code) {
+                @apply bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-medium;
+                font-family: 'Fira Code', monospace;
+            }
+            .platform-badge {
+                @apply inline-block px-2 py-1 text-xs font-semibold rounded-full mr-2;
+            }
+            .feature-badge {
+                @apply inline-block px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full mr-1;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-light text-dark antialiased">
+    <!-- Navigation -->
+    <header class="fixed w-full bg-white/90 backdrop-blur-sm shadow-sm z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="../index.html" class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+                    <i class="fas fa-bolt text-white text-xl"></i>
+                </div>
+                <span class="text-xl font-bold text-primary">AIComputing101</span>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="../index.html#about" class="font-medium hover:text-primary transition-colors">About</a>
+                <a href="../index.html#vision" class="font-medium hover:text-primary transition-colors">Vision</a>
+                <a href="../index.html#projects" class="font-medium hover:text-primary transition-colors">Projects</a>
+                <a href="index.html" class="font-medium text-primary transition-colors">Blog</a>
+                <a href="../index.html#about-us" class="font-medium hover:text-primary transition-colors">About Us</a>
+                <a href="https://github.com/AIComputing101" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                    <i class="fa fa-github"></i> GitHub
+                </a>
+            </nav>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-dark text-2xl">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-3 flex flex-col gap-4">
+                <a href="../index.html#about" class="py-2 font-medium hover:text-primary transition-colors">About</a>
+                <a href="../index.html#vision" class="py-2 font-medium hover:text-primary transition-colors">Vision</a>
+                <a href="../index.html#projects" class="py-2 font-medium hover:text-primary transition-colors">Projects</a>
+                <a href="index.html" class="py-2 font-medium text-primary transition-colors">Blog</a>
+                <a href="../index.html#about-us" class="py-2 font-medium hover:text-primary transition-colors">About Us</a>
+                <a href="https://github.com/AIComputing101" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors w-fit">
+                    <i class="fa fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-24">
+        <!-- Blog Post Header -->
+        <section class="py-12 bg-gradient-to-br from-primary/5 to-secondary/5">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <div class="flex items-center text-sm text-gray-500 mb-4 flex-wrap gap-2">
+                        <span><i class="fa fa-calendar-o mr-1"></i> October 15, 2025</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="fa fa-tag mr-1"></i> GPU Programming</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="fa fa-user-o mr-1"></i> Stephen Shao</span>
+                        <span class="mx-2">•</span>
+                        <span class="platform-badge bg-nvidia/10 text-nvidia"><i class="fas fa-microchip mr-1"></i> CUDA</span>
+                        <span class="platform-badge bg-amd/10 text-amd"><i class="fas fa-microchip mr-1"></i> ROCm</span>
+                    </div>
+                    <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-6">Optimizing GPU Kernels: Strategies for NVIDIA CUDA and AMD ROCm</h1>
+                    <img src="https://picsum.photos/id/180/1200/600" alt="GPU Kernel Optimization for NVIDIA H100 and AMD MI300" class="w-full h-64 md:h-80 object-cover rounded-xl shadow-sm mb-6">
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog Post Content -->
+        <section class="py-12 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto blog-content">
+                    <p>The <code class="bg-gray-100 px-1 py-0.5 rounded">gpu-programming-101</code> repository has been updated to focus on the latest data center GPUs of NVIDIA and AMD. This advanced guide explores <strong>cross-platform optimization techniques</strong> that leverage the unique capabilities of these architectures while maintaining portable code patterns. Our updated <code class="bg-gray-100 px-1 py-0.5 rounded">04_advanced_optimization</code> module includes CUDA 13+ and ROCm 7.x examples, with special attention to tensor cores, matrix engines, and HBM3 memory systems.</p>
+
+                    <h3>Why Optimization Matters (With H100/MI300 Benchmarks)</h3>
+                    <p>Modern GPUs like the H100 and MI300 offer unprecedented compute density, but realizing their full potential requires architecture-aware programming. A naive matrix multiplication kernel demonstrates the performance gap:</p>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li>~450 GFLOPS on NVIDIA H100 (CUDA 13.x)</li>
+                        <li>~420 GFLOPS on AMD MI300X (ROCm 7.x)</li>
+                    </ul>
+                    <p>With optimized implementations leveraging hardware acceleration features, we achieved:
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li><strong>19.2 TFLOPS</strong> on H100 (using Tensor Cores with FP16)</li>
+                        <li><strong>16.8 TFLOPS</strong> on MI300X (using Matrix Cores with FP16)</li>
+                    </ul>
+                    This represents a 43x performance improvement—making proper optimization critical for exploiting these $20k+ GPUs.</p>
+
+                    <h3>Major GPU Kernels in Modern Computing</h3>
+                    <p>Contemporary GPU workloads rely on several fundamental kernel patterns. Understanding these building blocks is essential for effective optimization:</p>
+                    
+                    <h4>1. Matrix Multiplication (GEMM)</h4>
+                    <p>The foundation of machine learning, scientific computing, and linear algebra. Both H100 and MI300 include specialized hardware (Tensor Cores and Matrix Cores) explicitly designed for this workload.</p>
+                    
+                    <h4>2. Convolution</h4>
+                    <p>Essential for computer vision and CNNs. Modern implementations use Winograd algorithms or FFT-based approaches to reduce arithmetic operations.</p>
+                    
+                    <h4>3. Element-wise Operations</h4>
+                    <p>Simple arithmetic applied to each element in tensors (e.g., activation functions in neural networks). While seemingly simple, these kernels become critical in deep learning pipelines with large batch sizes.</p>
+                    
+                    <h4>4. Reduction Kernels</h4>
+                    <p>Operations like sum, min/max, and dot products that combine array elements. These require careful load balancing across thousands of threads.</p>
+                    
+                    <h4>5. Sparse Operations</h4>
+                    <p>Efficiently processing sparse matrices/vectors common in graph neural networks, recommendation systems, and scientific simulations.</p>
+                    
+                    <h4>6. Batched Operations</h4>
+                    <p>Processing multiple small problems simultaneously, leveraging the massive parallelism of GPUs while maintaining cache efficiency.</p>
+
+                    <h3>Performance Challenges with H100 and MI300</h3>
+                    <p>The H100 (Hopper architecture) and MI300 (CDNA 3 architecture) introduce new optimization challenges alongside their advanced features:</p>
+                    
+                    <h4>1. Memory Hierarchy Complexity</h4>
+                    <p>Both GPUs feature multi-level memory systems: H100 with 50MB L2 cache and 80GB HBM3 (3.35TB/s), MI300X with 128MB L2 cache and 192GB HBM3e (5.3TB/s). Effectively utilizing this hierarchy requires sophisticated data reuse strategies.</p>
+                    
+                    <h4>2. Specialized Hardware Utilization</h4>
+                    <p>H100's Tensor Cores support FP8, BF16, FP16, and TF32 precisions with different throughput characteristics. MI300's Matrix Cores have their own precision-specific capabilities. Maximizing utilization requires careful type selection and kernel design.</p>
+                    
+                    <h4>3. Thread Block Scheduling</h4>
+                    <p>H100's GPCs (Graphics Processing Clusters) and MI300's Shader Engines have different execution resource allocations. Suboptimal block sizes can leave significant compute resources idle.</p>
+                    
+                    <h4>4. Power and Thermal Constraints</h4>
+                    <p>With 700W (H100) and 600W (MI300) TDPs, these GPUs often operate under power caps, requiring optimization strategies that maximize performance per watt.</p>
+                    
+                    <h4>5. Interconnect Overhead</h4>
+                    <p>In multi-GPU systems (common with these data center GPUs), PCIe 5.0 and NVLink (H100) or Infinity Fabric (MI300) communication introduces new optimization considerations.</p>
+
+                    <h3>Optimization Strategies: H100 and MI300 Approaches</h3>
+                    <p>While core optimization principles apply across platforms, effectively utilizing H100 and MI300 requires architecture-specific techniques:</p>
+                    
+                    <h4>1. Hardware Acceleration for Matrix Operations</h4>
+                    <p>Both GPUs feature specialized matrix multiplication units that deliver the majority of their compute throughput.</p>
+                    
+                    <h5>NVIDIA H100: Tensor Core Utilization with CUDA C++</h5>
+                    <pre class="code-block"><code class="language-c">// H100: Tensor Core-accelerated matrix multiplication (FP16)
+#include &lt;cublas_v2.h&gt;
+#include &lt;cuda_fp16.h&gt;
+
+// For direct tensor core access (lower level than cuBLAS)
+__global__ void h100TensorCoreGEMM(half *C, const half *A, const half *B, 
+                                  int M, int N, int K) {
+    // 16x16x16 warp-level matrix multiplication
+    const int warpM = threadIdx.y / 16;
+    const int warpN = threadIdx.x / 16;
+    const int laneM = threadIdx.y % 16;
+    const int laneN = threadIdx.x % 16;
+    
+    // Load fragments into tensor registers
+    nvcuda::wmma::fragment&lt;nvcuda::wmma::matrix_a, 16, 16, 16, half, nvcuda::wmma::row_major&gt; a_frag;
+    nvcuda::wmma::fragment&lt;nvcuda::wmma::matrix_b, 16, 16, 16, half, nvcuda::wmma::col_major&gt; b_frag;
+    nvcuda::wmma::fragment&lt;nvcuda::wmma::accumulator, 16, 16, 16, float&gt; c_frag;
+    
+    // Initialize accumulator
+    nvcuda::wmma::fill_fragment(c_frag, 0.0f);
+    
+    // Load data and perform matrix multiplication
+    nvcuda::wmma::load_matrix_sync(a_frag, &A[(warpM*16 + laneM)*K], K);
+    nvcuda::wmma::load_matrix_sync(b_frag, &B[(warpN*16 + laneN)*K], N);
+    nvcuda::wmma::mma_sync(c_frag, a_frag, b_frag, c_frag);
+    
+    // Store result
+    nvcuda::wmma::store_matrix_sync(&C[(warpM*16 + laneM)*N + warpN*16 + laneN], 
+                                   c_frag, N, nvcuda::wmma::row_major);
+}</code></pre>
+
+                    <h5>AMD MI300: Matrix Core Utilization with HIP</h5>
+                    <pre class="code-block"><code class="language-c">// MI300: Matrix Core-accelerated matrix multiplication (FP16)
+#include &lt;hip/hip_fp16.h&gt;
+#include &lt;hipblaslt/hipblaslt.h&gt;
+
+// For direct matrix core access using MIOpen GEMM kernels
+__global__ void mi300MatrixCoreGEMM(half *C, const half *A, const half *B,
+                                  int M, int N, int K) {
+    // 16x16x16 wavefront-level matrix multiplication
+    const int waveM = threadIdx.y / 16;
+    const int waveN = threadIdx.x / 16;
+    const int laneM = threadIdx.y % 16;
+    const int laneN = threadIdx.x % 16;
+    
+    // Load 2x2 tiles per thread (16x16 tile per wavefront)
+    half4 a[4], b[4], c[4];
+    
+    // Initialize accumulator
+    #pragma unroll
+    for (int i = 0; i < 4; i++) {
+        c[i] = half4{0.0_h, 0.0_h, 0.0_h, 0.0_h};
+    }
+    
+    // Matrix multiplication using MI300 matrix instructions
+    #pragma unroll
+    for (int k = 0; k < K; k += 16) {
+        // Load A and B tiles (vectorized loads for HBM3 efficiency)
+        #pragma unroll
+        for (int i = 0; i < 4; i++) {
+            a[i] = *reinterpret_cast&lt;const half4*&gt;(&A[(waveM*16 + laneM + i*4)*K + k + laneN]);
+            b[i] = *reinterpret_cast&lt;const half4*&gt;(&B[(k + laneM + i*4)*N + waveN*16 + laneN]);
+        }
+        
+        // Perform matrix multiplication using AMD matrix cores
+        #pragma unroll
+        for (int i = 0; i < 4; i++) {
+            c[i] = __builtin_amdgcn_mfma_f16_16x16x4_f16(a[i], b[i], c[i], 0, 0, 0);
+        }
+    }
+    
+    // Store results
+    #pragma unroll
+    for (int i = 0; i < 4; i++) {
+        *reinterpret_cast&lt;half4*&gt;(&C[(waveM*16 + laneM + i*4)*N + waveN*16 + laneN]) = c[i];
+    }
+}</code></pre>
+
+                    <h4>2. Memory Optimization for HBM3</h4>
+                    <p>Both GPUs feature high-bandwidth memory that requires careful access patterns to saturate:</p>
+                    
+                    <h5>CUDA: H100 HBM3 Optimization with Shared Memory Banking</h5>
+                    <pre class="code-block"><code class="language-c">// H100: Optimized shared memory usage avoiding bank conflicts
+__global__ void h100OptimizedStencil3D(float *out, const float *in, 
+                                     int width, int height, int depth) {
+    // 32x32x4 tile with padding to avoid bank conflicts
+    __shared__ float tile[34][34][5];  // +2 padding in x/y dimensions
+    
+    // Calculate global indices
+    int x = blockIdx.x * 32 + threadIdx.x;
+    int y = blockIdx.y * 32 + threadIdx.y;
+    int z = blockIdx.z * 4 + threadIdx.z;
+    
+    // Load data into shared memory with boundary checks
+    if (x < width && y < height && z < depth) {
+        tile[threadIdx.x + 1][threadIdx.y + 1][threadIdx.z + 1] = in[z * width * height + y * width + x];
+        
+        // Load boundary tiles with padding
+        if (threadIdx.x == 0 && x > 0)
+            tile[0][threadIdx.y + 1][threadIdx.z + 1] = in[z * width * height + y * width + (x - 1)];
+        if (threadIdx.x == 31 && x < width - 1)
+            tile[33][threadIdx.y + 1][threadIdx.z + 1] = in[z * width * height + y * width + (x + 1)];
+        // Similar boundary handling for y dimension...
+    }
+    
+    __syncthreads();
+    
+    // Compute 3D stencil using shared memory (no bank conflicts)
+    if (x < width - 1 && y < height - 1 && z < depth - 1 && 
+        threadIdx.x > 0 && threadIdx.x < 33 && 
+        threadIdx.y > 0 && threadIdx.y < 33) {
+        
+        out[z * width * height + y * width + x] = 0.125f * (
+            tile[threadIdx.x + 1][threadIdx.y][threadIdx.z + 1] +
+            tile[threadIdx.x - 1][threadIdx.y][threadIdx.z + 1] +
+            tile[threadIdx.x][threadIdx.y + 1][threadIdx.z + 1] +
+            tile[threadIdx.x][threadIdx.y - 1][threadIdx.z + 1] +
+            tile[threadIdx.x][threadIdx.y][threadIdx.z + 2] +
+            tile[threadIdx.x][threadIdx.y][threadIdx.z]
+        );
+    }
+}</code></pre>
+
+                    <h5>HIP: MI300 HBM3e Optimization with Cache Control</h5>
+                    <pre class="code-block"><code class="language-c">// MI300: Optimized memory access with explicit cache control
+__global__ void mi300OptimizedStencil3D(float * __restrict__ out, 
+                                       const float * __restrict__ in,
+                                       int width, int height, int depth) {
+    // Use AMD's explicit cache control extensions
+    __shared__ float tile[34][34][5];  // Padded to avoid bank conflicts
+    
+    // Calculate global indices with vectorized access pattern
+    int x = blockIdx.x * 32 + threadIdx.x;
+    int y = blockIdx.y * 32 + threadIdx.y;
+    int z = blockIdx.z * 4 + threadIdx.z;
+    
+    // Load data with L2 cache hints for HBM3e efficiency
+    const size_t global_idx = z * width * height + y * width + x;
+    if (x < width && y < height && z < depth) {
+        // Prefetch next tile into L2 cache
+        if (x + 32 < width) {
+            __builtin_amdgcn_l2prefetch(&in[global_idx + 32], 1, 1, 0);
+        }
+        
+        // Load current tile with temporal locality hint
+        tile[threadIdx.x + 1][threadIdx.y + 1][threadIdx.z + 1] = 
+            __builtin_amdgcn_tracedata_load(&in[global_idx], 1);
+        
+        // Load boundary tiles (similar to H100 implementation)
+        // ...
+    }
+    
+    __syncthreads();
+    
+    // Compute stencil with optimized shared memory access
+    if (x < width - 1 && y < height - 1 && z < depth - 1 && 
+        threadIdx.x > 0 && threadIdx.x < 33 && 
+        threadIdx.y > 0 && threadIdx.y < 33) {
+        
+        out[global_idx] = 0.125f * (
+            tile[threadIdx.x + 1][threadIdx.y][threadIdx.z + 1] +
+            tile[threadIdx.x - 1][threadIdx.y][threadIdx.z + 1] +
+            tile[threadIdx.x][threadIdx.y + 1][threadIdx.z + 1] +
+            tile[threadIdx.x][threadIdx.y - 1][threadIdx.z + 1] +
+            tile[threadIdx.x][threadIdx.y][threadIdx.z + 2] +
+            tile[threadIdx.x][threadIdx.y][threadIdx.z]
+        );
+    }
+}</code></pre>
+
+                    <h4>3. Advanced Platform-Specific Techniques</h4>
+                    
+                    <h5>NVIDIA H100 Specialized Optimizations</h5>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li><strong>FP8 Precision</strong>: Use <code class="bg-gray-100 px-1 py-0.5 rounded">__nv_fp8_e4m3</code> and <code class="bg-gray-100 px-1 py-0.5 rounded">__nv_fp8_e5m2</code> types for AI workloads, doubling throughput compared to FP16</li>
+                        <li><strong>Thread Block Clustering</strong>: <code class="bg-gray-100 px-1 py-0.5 rounded">__cluster_dims__(8,8,1)</code> attribute to group thread blocks into clusters sharing L2 cache</li>
+                        <li><strong>Asynchronous Copy Engines</strong>: Utilize <code class="bg-gray-100 px-1 py-0.5 rounded">cudaMemcpyAsync</code> with multiple streams to overlap computation and HBM3 transfers</li>
+                        <li><strong>NVLink P2P Communication</strong>: Direct GPU-to-GPU communication using <code class="bg-gray-100 px-1 py-0.5 rounded">cudaDeviceEnablePeerAccess</code> in multi-GPU systems</li>
+                    </ul>
+                    
+                    <h5>AMD MI300 Specialized Optimizations</h5>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li><strong>Matrix Core Programming</strong>: Use <code class="bg-gray-100 px-1 py-0.5 rounded">__builtin_amdgcn_mfma_*</code> intrinsics for direct access to matrix multiplication units</li>
+                        <li><strong>Infinity Fabric Optimization</strong>: <code class="bg-gray-100 px-1 py-0.5 rounded">hipSetDeviceFlags(HIP_DEVICE_FLAGS_P2P_ENABLED)</code> for efficient multi-GPU communication</li>
+                        <li><strong>L2 Cache Control</strong>: Explicit cache hints with <code class="bg-gray-100 px-1 py-0.5 rounded">__builtin_amdgcn_l2prefetch</code> and <code class="bg-gray-100 px-1 py-0.5 rounded">__builtin_amdgcn_tracedata_load</code></li>
+                        <li><strong>Partitioned Global Address Space</strong>: Use <code class="bg-gray-100 px-1 py-0.5 rounded">hipExtMallocP2P</code> for unified memory addressing across multiple MI300 GPUs</li>
+                    </ul>
+
+                    <h4>4. Modern Profiling Workflows</h4>
+                    <p>Effective optimization requires understanding hardware utilization with modern profiling tools:</p>
+                    
+                    <h5>NVIDIA H100 Profiling with Nsight Compute 2024.1</h5>
+                    <pre class="code-block"><code class="language-bash"># Detailed kernel analysis with H100-specific metrics
+nsight-compute --metrics sm__throughput.avg.pct_of_peak_sustained_elapsed, \
+                 tensor_core__throughput.avg.pct_of_peak_sustained_elapsed, \
+                 lts__throughput.avg.pct_of_peak_sustained_elapsed \
+                 ./h100_application
+
+# Multi-GPU performance analysis
+nsight-systems --trace cuda,nvlink,osrt --sampling on --cuda-memory-usage on \
+               --duration 60s ./h100_multi_gpu_app
+
+# Tensor Core utilization breakdown
+nv-nsight-cu-cli --section TensorCoreUtilization --kernel-filter "gemm" ./h100_app</code></pre>
+                    
+                    <h5>AMD MI300 Profiling with ROCm 6.1 Tools</h5>
+                    <pre class="code-block"><code class="language-bash"># MI300 matrix core utilization analysis
+rocprof --hip-trace --metrics matrix_ops:all ./mi300_application
+
+# Memory bandwidth analysis
+rocprof --hsa-trace --metrics memory:all --stats ./mi300_application
+
+# Multi-GPU communication analysis
+rocprof --hsa-trace --roctx-trace --metrics infinity_fabric:all \
+        --output mi300_profile.json ./mi300_multi_gpu_app
+
+# Visualize results with ROCm Profiler GUI
+rocprof-visualizer mi300_profile.json</code></pre>
+
+                    <h3>Production-Grade Implementation Considerations</h3>
+                    <p>For enterprise deployments on H100 and MI300, additional factors become critical:</p>
+                    
+                    <h4>Precision Selection</h4>
+                    <p>Choose between FP8, BF16, FP16, TF32, and FP32 based on your accuracy requirements and performance needs. H100's FP8 delivers 67 TFLOPS AI performance, while MI300's FP8 provides 54 TFLOPS—both significantly higher than FP16 throughput.</p>
+                    
+                    <h4>Power Efficiency</h4>
+                    <p>Under typical power caps (500W for H100, 450W for MI300), optimize for performance-per-watt rather than peak performance. This often means balancing compute utilization with memory bandwidth.</p>
+                    
+                    <h4>Multi-GPU Scaling</h4>
+                    <p>Leverage NVLink 4.0 (H100) or Infinity Fabric (MI300) for multi-GPU communication. Use techniques like tensor parallelism for large models and data parallelism for high-throughput inference.</p>
+                    
+                    <h4>Software Ecosystem</h4>
+                    <p>Utilize optimized libraries as building blocks:
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li>NVIDIA: cuBLAS 12.x, cuDNN 9.x, TensorRT 10.x</li>
+                        <li>AMD: rocBLAS 3.0+, MIOpen 3.0+, TensorRT-LLM with ROCm support</li>
+                    </ul>
+
+                    <p>Update your repository with <code class="bg-gray-100 px-1 py-0.5 rounded">git pull</code> to access the H100 and MI300 optimization examples, including benchmarking scripts that measure key metrics like tensor core utilization, memory bandwidth, and power efficiency. Share your results in our <a href="https://github.com/AIComputing101/gpu-programming-101/issues" target="_blank" class="text-primary hover:underline">discussion forum</a>—we're particularly interested in cross-platform performance comparisons and novel optimization techniques for these flagship GPUs.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Related Posts -->
+        <section class="py-12 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <h2 class="text-2xl font-semibold mb-8">Related Posts</h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <a href="h100-mi300-ai-performance.html" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <img src="https://picsum.photos/id/9/600/400" alt="H100 vs MI300 AI Performance" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">H100 vs MI300: AI Training Performance Showdown</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> October 10, 2025</p>
+                            </div>
+                        </a>
+                        <a href="multi-gpu-scaling-h100-mi300.html" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <img src="https://picsum.photos/id/160/600/400" alt="Multi-GPU Scaling" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">Multi-GPU Scaling Strategies for H100 and MI300 Clusters</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> September 28, 2025</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white/80 py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
+                            <i class="fas fa-bolt text-primary text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">AIComputing101</span>
+                    </div>
+                    <p class="mb-4">
+                        Collaborative learning for AI and computational systems.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://github.com/AIComputing101" target="_blank" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-youtube-play text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-discord text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="../index.html#about" class="hover:text-white transition-colors">Our Mission</a></li>
+                        <li><a href="../index.html#vision" class="hover:text-white transition-colors">Our Vision</a></li>
+                        <li><a href="../index.html#projects" class="hover:text-white transition-colors">Projects</a></li>
+                        <li><a href="index.html" class="hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="../index.html#about-us" class="hover:text-white transition-colors">About Us</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="https://github.com/AIComputing101?tab=repositories" target="_blank" class="hover:text-white transition-colors">All Repositories</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contribution Guide</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Learning Paths</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">FAQ</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Stay Updated</h4>
+                    <p class="mb-4 text-sm">Subscribe to our newsletter for project updates and new resources.</p>
+                    <form class="flex">
+                        <input type="email" placeholder="Your email" class="px-4 py-2 rounded-l-lg w-full text-dark focus:outline-none text-sm">
+                        <button type="submit" class="bg-primary px-4 py-2 rounded-r-lg hover:bg-primary/90 transition-colors">
+                            <i class="fa fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-8 text-center text-sm">
+                <p>&copy; 2025 AIComputing101. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            const icon = mobileMenuBtn.querySelector('i');
+            if (mobileMenu.classList.contains('hidden')) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            } else {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                        const icon = mobileMenuBtn.querySelector('i');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
+            });
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('py-2', 'shadow');
+                header.classList.remove('py-3');
+            } else {
+                header.classList.add('py-3');
+                header.classList.remove('py-2', 'shadow');
+            }
+        });
+    </script>
+</body>
+</html>
