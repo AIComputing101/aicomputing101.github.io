@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Machine Learning: Current State and Future Directions</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <!-- Add language support -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#7B61FF',
+                        quantum: '#6441A4',
+                        classical: '#2D7D42',
+                        qml: '#0D9488',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .blog-content p {
+                @apply mb-6 leading-relaxed;
+            }
+            .blog-content h3 {
+                @apply text-xl font-semibold mt-8 mb-4;
+            }
+            .blog-content h4 {
+                @apply text-lg font-medium mt-6 mb-3;
+            }
+            .blog-content h5 {
+                @apply text-base font-semibold mt-4 mb-2;
+            }
+            /* Code block styles */
+            .code-block {
+                @apply bg-gray-900 text-gray-100 rounded-lg p-4 my-6 overflow-x-auto;
+                font-family: 'Fira Code', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+                line-height: 1.6;
+                font-size: 0.875rem; /* 14px */
+            }
+            /* Inline code styles */
+            .blog-content code:not(.code-block code) {
+                @apply bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-medium;
+                font-family: 'Fira Code', monospace;
+            }
+            .platform-badge {
+                @apply inline-block px-2 py-1 text-xs font-semibold rounded-full mr-2;
+            }
+            .qml-badge {
+                @apply inline-block px-2 py-0.5 text-xs bg-qml/10 text-qml rounded-full mr-1;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-light text-dark antialiased">
+    <!-- Navigation -->
+    <header class="fixed w-full bg-white/90 backdrop-blur-sm shadow-sm z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="../index.html" class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+                    <i class="fas fa-bolt text-white text-xl"></i>
+                </div>
+                <span class="text-xl font-bold text-primary">AIComputing101</span>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="../index.html#about" class="font-medium hover:text-primary transition-colors">About</a>
+                <a href="../index.html#vision" class="font-medium hover:text-primary transition-colors">Vision</a>
+                <a href="../index.html#projects" class="font-medium hover:text-primary transition-colors">Projects</a>
+                <a href="index.html" class="font-medium text-primary transition-colors">Blog</a>
+                <a href="../index.html#about-us" class="font-medium hover:text-primary transition-colors">About Us</a>
+                <a href="https://github.com/AIComputing101" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                    <i class="fa fa-github"></i> GitHub
+                </a>
+            </nav>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-dark text-2xl">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-3 flex flex-col gap-4">
+                <a href="../index.html#about" class="py-2 font-medium hover:text-primary transition-colors">About</a>
+                <a href="../index.html#vision" class="py-2 font-medium hover:text-primary transition-colors">Vision</a>
+                <a href="../index.html#projects" class="py-2 font-medium hover:text-primary transition-colors">Projects</a>
+                <a href="index.html" class="py-2 font-medium text-primary transition-colors">Blog</a>
+                <a href="../index.html#about-us" class="py-2 font-medium hover:text-primary transition-colors">About Us</a>
+                <a href="https://github.com/AIComputing101" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors w-fit">
+                    <i class="fa fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-24">
+        <!-- Blog Post Header -->
+        <section class="py-12 bg-gradient-to-br from-quantum/5 to-qml/5">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <div class="flex items-center text-sm text-gray-500 mb-4 flex-wrap gap-2">
+                        <span><i class="fa fa-calendar-o mr-1"></i> October 7, 2025</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="fa fa-tag mr-1"></i> Quantum Computing</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="fa fa-user-o mr-1"></i> Dr. Stephen Shao</span>
+                        <span class="mx-2">•</span>
+                        <span class="platform-badge bg-quantum/10 text-quantum"><i class="fas fa-atom mr-1"></i> Quantum</span>
+                        <span class="platform-badge bg-qml/10 text-qml"><i class="fas fa-brain mr-1"></i> QML</span>
+                    </div>
+                    <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-6">Quantum Machine Learning: Current State and Future Directions</h1>
+                    <img src="https://picsum.photos/id/42/1200/600" alt="Quantum Machine Learning: Bridging Quantum Computing and AI" class="w-full h-64 md:h-80 object-cover rounded-xl shadow-sm mb-6">
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog Post Content -->
+        <section class="py-12 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto blog-content">
+                    <p>Quantum Machine Learning (QML) represents one of the most promising intersections of quantum computing and artificial intelligence, aiming to leverage quantum properties like superposition, entanglement, and interference to solve machine learning problems more efficiently. As quantum hardware evolves from noisy intermediate-scale quantum (NISQ) devices to fault-tolerant systems, QML is transitioning from theoretical exploration to practical implementation. Our updated <code class="bg-gray-100 px-1 py-0.5 rounded">04_quantum_machine_learning</code> module in the <code class="bg-gray-100 px-1 py-0.5 rounded">quantum-computing-101</code> repository explores working implementations, benchmark comparisons, and emerging research directions in this rapidly advancing field.</p>
+
+                    <h3>Foundations of Quantum Machine Learning</h3>
+                    <p>QML combines classical machine learning principles with quantum computing techniques, creating three primary categories of approaches:</p>
+                    
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li><strong>Quantum-enhanced classical learning</strong>: Classical ML algorithms using quantum computing for specific subroutines (e.g., quantum kernel methods)</li>
+                        <li><strong>Quantum data learning</strong>: Algorithms designed to learn from inherently quantum data (e.g., molecular simulations, quantum sensor data)</li>
+                        <li><strong>Quantum neural networks</strong>: Parameterized quantum circuits that learn patterns similarly to classical neural networks but with quantum operations</li>
+                    </ul>
+                    
+                    <p>Unlike purely quantum algorithms that aim to solve problems like factoring exponentially faster than classical computers, QML often targets more modest "quantum advantage"—providing practical speedups, better generalization, or reduced resource requirements for specific ML tasks.</p>
+
+                    <h3>Current State of QML: What's Feasible Today</h3>
+                    <p>With NISQ devices offering 50-400 noisy qubits, several QML approaches have demonstrated practical results. These implementations focus on hybrid quantum-classical frameworks that work within current hardware limitations.</p>
+                    
+                    <h4>1. Quantum Kernel Methods</h4>
+                    <p class="qml-badge">Quantum Kernels</p>
+                    <p>Quantum kernel methods extend classical support vector machines by replacing classical kernels with quantum computations that can capture complex patterns in data:</p>
+                    
+                    <pre class="code-block"><code class="language-python">from qiskit import Aer, QuantumCircuit
+from qiskit.utils import QuantumInstance, algorithm_globals
+from qiskit_machine_learning.algorithms import QSVC
+from qiskit_machine_learning.kernels import QuantumKernel
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import accuracy_score
+
+# Set random seeds for reproducibility
+algorithm_globals.random_seed = 42
+quantum_instance = QuantumInstance(
+    Aer.get_backend('statevector_simulator'),
+    seed_simulator=algorithm_globals.random_seed,
+    seed_transpiler=algorithm_globals.random_seed
+)
+
+# Generate synthetic data
+X, y = make_classification(
+    n_samples=100, n_features=2, n_redundant=0, 
+    random_state=algorithm_globals.random_seed
+)
+
+# Scale data to [0, π] for angle encoding
+scaler = MinMaxScaler(feature_range=(0, np.pi))
+X_scaled = scaler.fit_transform(X)
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(
+    X_scaled, y, test_size=0.2, random_state=42
+)
+
+# Create a quantum feature map (kernel)
+feature_map = QuantumCircuit(2, name="Quantum Kernel")
+feature_map.ry(X[0][0], 0)
+feature_map.ry(X[0][1], 1)
+feature_map.cx(0, 1)
+feature_map.ry(X[1][0], 0)
+feature_map.ry(X[1][1], 1)
+
+# Create quantum kernel
+qkernel = QuantumKernel(
+    feature_map=feature_map,
+    quantum_instance=quantum_instance
+)
+
+# Create and train quantum SVM
+qsvc = QSVC(quantum_kernel=qkernel)
+qsvc.fit(X_train, y_train)
+
+# Evaluate
+y_pred = qsvc.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Quantum SVM accuracy: {accuracy:.2f}")
+
+# Compare with classical SVM
+from sklearn.svm import SVC
+svc = SVC()
+svc.fit(X_train, y_train)
+classical_accuracy = accuracy_score(y_test, svc.predict(X_test))
+print(f"Classical SVM accuracy: {classical_accuracy:.2f}")</code></pre>
+
+                    <h4>2. Variational Quantum Classifiers</h4>
+                    <p class="qml-badge">Variational Classifiers</p>
+                    <p>These hybrid models use parameterized quantum circuits as classifiers, with classical optimization updating parameters:</p>
+                    
+                    <pre class="code-block"><code class="language-python">from qiskit_machine_learning.algorithms import VQC
+from qiskit.algorithms.optimizers import COBYLA
+from qiskit.circuit.library import TwoLocal
+
+# Create a variational quantum classifier
+# Quantum circuit for feature mapping
+feature_map = TwoLocal(2, ['ry', 'rz'], 'cz', reps=1)
+
+# Quantum circuit for the classifier (ansatz)
+ansatz = TwoLocal(2, ['ry', 'rz'], 'cz', reps=2)
+
+# Classical optimizer
+optimizer = COBYLA(maxiter=100)
+
+# Create VQC
+vqc = VQC(
+    feature_map=feature_map,
+    ansatz=ansatz,
+    optimizer=optimizer,
+    quantum_instance=quantum_instance
+)
+
+# Train
+vqc.fit(X_train, y_train)
+
+# Evaluate
+vqc_accuracy = vqc.score(X_test, y_test)
+print(f"Variational Quantum Classifier accuracy: {vqc_accuracy:.2f}")
+
+# Visualize the quantum circuits
+print("Feature map:")
+print(feature_map.draw(output='text'))
+print("\nAnsatz:")
+print(ansatz.draw(output='text'))</code></pre>
+
+                    <h4>3. Quantum Autoencoders</h4>
+                    <p class="qml-badge">Quantum Autoencoders</p>
+                    <p>Quantum autoencoders compress quantum data into lower-dimensional spaces, enabling more efficient storage and processing:</p>
+                    
+                    <pre class="code-block"><code class="language-python">from qiskit.circuit.library import RealAmplitudes
+from qiskit.algorithms.optimizers import SPSA
+import numpy as np
+
+class QuantumAutoencoder:
+    def __init__(self, n_qubits, latent_dim):
+        self.n_qubits = n_qubits
+        self.latent_dim = latent_dim
+        self.encoder = RealAmplitudes(n_qubits, reps=2)
+        self.decoder = RealAmplitudes(n_qubits, reps=2)
+        self.optimizer = SPSA(maxiter=100)
+        self.params = np.random.randn(self.encoder.num_parameters + 
+                                     self.decoder.num_parameters)
+    
+    def encode(self, circuit, params):
+        encoder_params = params[:self.encoder.num_parameters]
+        return circuit.compose(self.encoder.assign_parameters(encoder_params))
+    
+    def decode(self, circuit, params):
+        decoder_params = params[self.encoder.num_parameters:]
+        return circuit.compose(self.decoder.assign_parameters(decoder_params))
+    
+    def circuit(self, params):
+        qc = QuantumCircuit(self.n_qubits)
+        # Encode
+        qc = self.encode(qc, params)
+        # Trace out latent space qubits
+        for i in range(self.latent_dim, self.n_qubits):
+            qc.reset(i)
+        # Decode
+        qc = self.decode(qc, params)
+        # Measure all qubits
+        qc.measure_all()
+        return qc
+    
+    def loss(self, params, data):
+        # Calculate reconstruction loss
+        total_loss = 0
+        for state in data:
+            qc = QuantumCircuit(self.n_qubits)
+            qc.initialize(state)
+            qc = self.circuit(params)
+            result = execute(qc, quantum_instance.backend, shots=1024).result()
+            counts = result.get_counts()
+            # Loss is distance from original state
+            total_loss += 1 - counts.get(''.join(map(str, state)), 0)/1024
+        return total_loss / len(data)
+    
+    def train(self, data):
+        self.params, loss, _ = self.optimizer.optimize(
+            self.params.size,
+            lambda p: self.loss(p, data),
+            initial_point=self.params
+        )
+        return loss
+
+# Create and train a quantum autoencoder
+n_qubits = 4
+latent_dim = 2  # Compress from 4 to 2 qubits
+autoencoder = QuantumAutoencoder(n_qubits, latent_dim)
+
+# Generate quantum data (4-qubit states)
+data = [
+    [1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1]  # Computational basis states
+]
+
+# Train
+final_loss = autoencoder.train(data)
+print(f"Final reconstruction loss: {final_loss:.4f}")</code></pre>
+
+                    <h3>Current Limitations and Challenges</h3>
+                    <p>Despite progress, several significant challenges prevent widespread adoption of QML:</p>
+                    
+                    <h4>1. NISQ Device Constraints</h4>
+                    <p>Current quantum hardware has limited qubit counts, high error rates, and short coherence times, restricting QML to small datasets and shallow circuits. Our benchmarks show that quantum classifiers typically outperform classical ones only for specific datasets with 10-100 samples.</p>
+                    
+                    <h4>2. Data Encoding Bottlenecks</h4>
+                    <p>Converting classical data to quantum states (encoding) often requires O(n) resources for n-dimensional data, eliminating potential speedups. Finding efficient encoding strategies remains an active research area.</p>
+                    
+                    <h4>3. Training Challenges</h4>
+                    <p>Quantum models suffer from "barren plateaus"—flat loss landscapes that prevent effective optimization—as circuit depth and qubit count increase. This makes scaling QML models difficult.</p>
+                    
+                    <h4>4. Quantum Advantage Demonstration</h4>
+                    <p>To date, no QML algorithm has definitively demonstrated a practical advantage over classical ML on real-world problems. Most successful demonstrations use synthetic data or highly specialized tasks.</p>
+
+                    <h3>Future Directions in Quantum Machine Learning</h3>
+                    <p>As quantum hardware advances, several promising directions are emerging that could lead to practical quantum advantage in machine learning:</p>
+                    
+                    <h4>1. Fault-Tolerant QML</h4>
+                    <p>With fully error-corrected quantum computers (expected in the 2030s), we can implement more powerful QML algorithms:</p>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li><strong>Quantum principal component analysis</strong> with exponential speedup for large datasets</li>
+                        <li><strong>Quantum support vector machines</strong> with polynomial speedup for high-dimensional data</li>
+                        <li><strong>Quantum deep learning</strong> with multi-layered quantum neural networks</li>
+                    </ul>
+                    
+                    <h4>2. Novel Quantum Neural Network Architectures</h4>
+                    <p>Research into quantum-specific neural network designs is addressing current limitations:</p>
+                    <pre class="code-block"><code class="language-python"># Example of a hardware-efficient quantum neural network
+# Designed to minimize noise impact on NISQ devices
+
+from qiskit.circuit.library import EfficientSU2
+
+# Hardware-efficient ansatz with staggered entanglement
+qnn = EfficientSU2(
+    num_qubits=4,
+    reps=3,
+    entanglement='circular',  # Physically realistic entanglement pattern
+    insert_barriers=True,     # Reduce crosstalk between layers
+    skip_unentangled_qubits=True  # Avoid unnecessary operations
+)
+
+# Add noise resilience features
+def add_resilience(qc):
+    """Add error mitigation features to quantum circuit"""
+    # Insert dynamical decoupling sequences in idle periods
+    from qiskit.transpiler.passes import DynamicalDecoupling
+    from qiskit.circuit.library import XGate
+    
+    dd = DynamicalDecoupling(
+        None,  # Will be determined by backend
+        [XGate(), XGate()],  # Simple refocusing sequence
+        skip_final_dd=True
+    )
+    
+    # Return modified circuit
+    return qc
+
+# Create resilient QNN
+resilient_qnn = add_resilience(qnn)
+print(resilient_qnn.draw(output='text'))</code></pre>
+                    
+                    <h4>3. Quantum Transfer Learning</h4>
+                    <p>Hybrid models that combine classical deep learning with quantum processing for specific layers show promise in extending QML to larger datasets:</p>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li>Classical networks process high-dimensional data into lower-dimensional features</li>
+                        <li>Quantum processors handle complex pattern recognition on these features</li>
+                        <li>Classical layers interpret quantum outputs for final predictions</li>
+                    </ul>
+                    
+                    <h4>4. Quantum Reinforcement Learning</h4>
+                    <p>Early research suggests quantum advantages in reinforcement learning, particularly for:</p>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li>Exploration in large state spaces</li>
+                        <li>Quantum-enhanced value function approximation</li>
+                        <li>Multi-agent systems with quantum communication</li>
+                    </ul>
+
+                    <h3>Practical Applications on the Horizon</h3>
+                    <p>Within the next 5-10 years, we expect QML to deliver practical value in specific domains:</p>
+                    
+                    <table class="min-w-full bg-white border border-gray-200 rounded-lg mb-6">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="py-3 px-4 border-b text-left">Application Domain</th>
+                                <th class="py-3 px-4 border-b text-left">Expected Quantum Advantage</th>
+                                <th class="py-3 px-4 border-b text-left">Timeline</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="py-3 px-4 border-b">Drug Discovery</td>
+                                <td class="py-3 px-4 border-b">Molecular property prediction with quantum data</td>
+                                <td class="py-3 px-4 border-b">2026-2028</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="py-3 px-4 border-b">Financial Modeling</td>
+                                <td class="py-3 px-4 border-b">Portfolio optimization, risk analysis</td>
+                                <td class="py-3 px-4 border-b">2027-2030</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b">Computer Vision</td>
+                                <td class="py-3 px-4 border-b">Feature extraction for specific image classes</td>
+                                <td class="py-3 px-4 border-b">2028-2032</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="py-3 px-4 border-b">Natural Language Processing</td>
+                                <td class="py-3 px-4 border-b">Semantic understanding, context modeling</td>
+                                <td class="py-3 px-4 border-b">2030-2035</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Getting Started with Quantum Machine Learning</h3>
+                    <p>To experiment with QML today, we recommend these resources and best practices:</p>
+                    
+                    <pre class="code-block"><code class="language-bash"># Install required packages
+pip install qiskit qiskit-machine-learning scikit-learn matplotlib
+
+# Clone our QML repository
+git clone https://github.com/AIComputing101/quantum-computing-101.git
+cd quantum-computing-101/04_quantum_machine_learning
+
+# Run benchmark comparisons
+python qml_benchmark.py --dataset mnist_small --algorithm all
+
+# Access IBM Quantum hardware
+python -c "from qiskit import IBMQ; IBMQ.save_account('YOUR_API_KEY')"
+
+# Run on real quantum hardware
+python variational_classifier.py --backend ibm_brisbane</code></pre>
+                    
+                    <p>Our repository includes pre-trained quantum models, dataset generators optimized for quantum processing, and visualization tools to compare classical and quantum performance. Focus your initial experiments on small datasets and simple models—this will help you develop intuition for when quantum approaches might offer advantages.</p>
+
+                    <p>Update your repository with <code class="bg-gray-100 px-1 py-0.5 rounded">git pull</code> to access our latest QML implementations, including improved quantum kernel methods and transfer learning examples. Share your experiments, results, and novel architectures in our <a href="https://github.com/AIComputing101/quantum-computing-101/issues" target="_blank" class="text-primary hover:underline">community forum</a>—collaborative exploration is key to advancing this exciting field!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Related Posts -->
+        <section class="py-12 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <h2 class="text-2xl font-semibold mb-8">Related Posts</h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <a href="20251007-error-mitigation-quantum.html" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <img src="https://picsum.photos/id/119/600/400" alt="Advanced Error Mitigation" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">Advanced Error Mitigation for NISQ Devices</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> October 7, 2025</p>
+                            </div>
+                        </a>
+                        <a href="20251015-ibm-qiskit-introduction.html" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <img src="https://picsum.photos/id/169/600/400" alt="IBM Qiskit Architecture" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">IBM Qiskit Architecture: Circuit Design and Simulation</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> October 15, 2025</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white/80 py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
+                            <i class="fas fa-bolt text-primary text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">AIComputing101</span>
+                    </div>
+                    <p class="mb-4">
+                        Collaborative learning for AI and computational systems.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://github.com/AIComputing101" target="_blank" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-youtube-play text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-discord text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="../index.html#about" class="hover:text-white transition-colors">Our Mission</a></li>
+                        <li><a href="../index.html#vision" class="hover:text-white transition-colors">Our Vision</a></li>
+                        <li><a href="../index.html#projects" class="hover:text-white transition-colors">Projects</a></li>
+                        <li><a href="index.html" class="hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="../index.html#about-us" class="hover:text-white transition-colors">About Us</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="https://github.com/AIComputing101?tab=repositories" target="_blank" class="hover:text-white transition-colors">All Repositories</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contribution Guide</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Learning Paths</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">FAQ</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Stay Updated</h4>
+                    <p class="mb-4 text-sm">Subscribe to our newsletter for project updates and new resources.</p>
+                    <form class="flex">
+                        <input type="email" placeholder="Your email" class="px-4 py-2 rounded-l-lg w-full text-dark focus:outline-none text-sm">
+                        <button type="submit" class="bg-primary px-4 py-2 rounded-r-lg hover:bg-primary/90 transition-colors">
+                            <i class="fa fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-8 text-center text-sm">
+                <p>&copy; 2025 AIComputing101. All projects are open-source under MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            const icon = mobileMenuBtn.querySelector('i');
+            if (mobileMenu.classList.contains('hidden')) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            } else {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                        const icon = mobileMenuBtn.querySelector('i');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
+            });
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('py-2', 'shadow');
+                header.classList.remove('py-3');
+            } else {
+                header.classList.add('py-3');
+                header.classList.remove('py-2', 'shadow');
+            }
+        });
+    </script>
+</body>
+</html>
