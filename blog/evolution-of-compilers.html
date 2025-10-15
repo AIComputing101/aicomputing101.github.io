@@ -31,41 +31,21 @@
     </script>
     
     <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .blog-content p {
-                @apply mb-6 leading-relaxed;
-            }
-            .blog-content h3 {
-                @apply text-xl font-semibold mt-8 mb-4 text-dark;
-            }
-            .blog-content h4 {
-                @apply text-lg font-medium mt-6 mb-3 text-dark;
-            }
-            .blog-content ul {
-                @apply list-disc pl-6 mb-6 space-y-2;
-            }
-            .blog-content ol {
-                @apply list-decimal pl-6 mb-6 space-y-2;
-            }
-            .blog-content code {
-                @apply bg-gray-100 px-1.5 py-0.5 rounded text-sm;
-            }
-            .blog-content table {
-                @apply w-full border-collapse mb-6;
-            }
-            .blog-content th, .blog-content td {
-                @apply border border-gray-200 px-4 py-3 text-left;
-            }
-            .blog-content th {
-                @apply bg-gray-50 font-medium;
-            }
-            .card-hover {
-                @apply transition-all duration-300 hover:shadow-md hover:-translate-y-1;
-            }
-        }
+        /* Replaced Tailwind @apply rules with plain CSS equivalents to avoid linter warnings
+           Keep the original utility classes in the markup; these rules provide fallback styles
+           in environments where Tailwind's postcss processor isn't available. */
+        .content-auto { content-visibility: auto; }
+        .blog-content p { margin-bottom: 1.5rem; line-height: 1.7; }
+        .blog-content h3 { font-size: 1.125rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem; color: #1E293B; }
+        .blog-content h4 { font-size: 1.0625rem; font-weight: 500; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #1E293B; }
+        .blog-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.5rem; }
+        .blog-content ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1.5rem; }
+        .blog-content code { background-color: #F3F4F6; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.875rem; }
+        .blog-content table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+        .blog-content th, .blog-content td { border: 1px solid #E5E7EB; padding: 0.75rem; text-align: left; }
+        .blog-content th { background-color: #F9FAFB; font-weight: 600; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.08); transform: translateY(-4px); }
     </style>
 </head>
 <body class="font-inter bg-light text-dark antialiased">
@@ -139,6 +119,17 @@
 
                     <h3>1. The Minimal Compiler: Foundations of "Lex → Parse → Codegen"</h3>
                     <p>Your POC compiler is the "hello world" of compiler design—and it’s where every key concept starts. Here’s its role:</p>
+
+                    <figure class="mb-6">
+                        <img
+                            src="../blog/images/Minimal-C-Compiler-Flow-diagram-800.png"
+                            srcset="../blog/images/Minimal-C-Compiler-Flow-diagram-480.png 480w, ../blog/images/Minimal-C-Compiler-Flow-diagram-800.png 800w, ../blog/images/Minimal-C-Compiler-Flow-diagram-1200.png 1200w"
+                            sizes="(max-width: 640px) 100vw, 800px"
+                            alt="Minimal C Compiler Flow Diagram"
+                            class="w-full h-auto object-contain rounded-xl shadow-sm"
+                        >
+                        <figcaption class="text-sm text-gray-500 mt-2">Figure: Minimal C compiler flow — lexing, parsing, IR, and codegen stages.</figcaption>
+                    </figure>
                     <ul>
                         <li><strong>Core Stages</strong>: It turns raw text (<code>return 42;</code>) into executable code via four steps:
                             <ol class="list-decimal pl-6 mt-2 mb-2">
@@ -202,7 +193,7 @@
                         </li>
                         <li><strong>Portability Tools</strong>:
                             <ul class="list-disc pl-6 mt-1 mb-1">
-                                <li><code>hipify-perl</code>: Converts CUDA code to HIP with minimal changes (e.g., <code>cudaMalloc</code> → <code>hipMalloc</code>).</li>
+                                <li><code>hipify-clang</code>: Converts CUDA code to HIP with minimal changes (e.g., <code>cudaMalloc</code> → <code>hipMalloc</code>).</li>
                                 <li><code>hipBLAS</code>/<code>hipFFT</code>: API-compatible alternatives to NVIDIA’s <code>cuBLAS</code>/<code>cuFFT</code>, ensuring library portability.</li>
                             </ul>
                         </li>
