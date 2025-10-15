@@ -398,7 +398,7 @@ __global__ void mi300OptimizedStencil3D(float * __restrict__ out,
                     <h4>4. Modern Profiling Workflows</h4>
                     <p>Effective optimization requires understanding hardware utilization with modern profiling tools:</p>
                     
-                    <h5>NVIDIA H100 Profiling with Nsight Compute 2024.1</h5>
+                    <h5>NVIDIA H100 Profiling with Nsight Compute 2025.2</h5>
                     <pre class="code-block"><code class="language-bash"># Detailed kernel analysis with H100-specific metrics
 nsight-compute --metrics sm__throughput.avg.pct_of_peak_sustained_elapsed, \
                  tensor_core__throughput.avg.pct_of_peak_sustained_elapsed, \
@@ -412,7 +412,7 @@ nsight-systems --trace cuda,nvlink,osrt --sampling on --cuda-memory-usage on \
 # Tensor Core utilization breakdown
 nv-nsight-cu-cli --section TensorCoreUtilization --kernel-filter "gemm" ./h100_app</code></pre>
                     
-                    <h5>AMD MI300 Profiling with ROCm 6.1 Tools</h5>
+                    <h5>AMD MI300 Profiling with ROCm 7.0 Tools</h5>
                     <pre class="code-block"><code class="language-bash"># MI300 matrix core utilization analysis
 rocprof --hip-trace --metrics matrix_ops:all ./mi300_application
 
