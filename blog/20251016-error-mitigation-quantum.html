@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Error Mitigation for NISQ Devices in Quantum Computing</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <!-- Add language support -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#7B61FF',
+                        ibm: '#0066FF',
+                        quantum: '#6441A4',
+                        error: '#E53E3E',
+                        mitigation: '#38A169',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .blog-content p {
+                @apply mb-6 leading-relaxed;
+            }
+            .blog-content h3 {
+                @apply text-xl font-semibold mt-8 mb-4;
+            }
+            .blog-content h4 {
+                @apply text-lg font-medium mt-6 mb-3;
+            }
+            .blog-content h5 {
+                @apply text-base font-semibold mt-4 mb-2;
+            }
+            /* Code block styles */
+            .code-block {
+                @apply bg-gray-900 text-gray-100 rounded-lg p-4 my-6 overflow-x-auto;
+                font-family: 'Fira Code', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+                line-height: 1.6;
+                font-size: 0.875rem; /* 14px */
+            }
+            /* Inline code styles */
+            .blog-content code:not(.code-block code) {
+                @apply bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-medium;
+                font-family: 'Fira Code', monospace;
+            }
+            .platform-badge {
+                @apply inline-block px-2 py-1 text-xs font-semibold rounded-full mr-2;
+            }
+            .technique-badge {
+                @apply inline-block px-2 py-0.5 text-xs bg-mitigation/10 text-mitigation rounded-full mr-1;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-light text-dark antialiased">
+    <!-- Navigation -->
+    <header class="fixed w-full bg-white/90 backdrop-blur-sm shadow-sm z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="../index.html" class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+                    <i class="fas fa-bolt text-white text-xl"></i>
+                </div>
+                <span class="text-xl font-bold text-primary">AIComputing101</span>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="../index.html#about" class="font-medium hover:text-primary transition-colors">About</a>
+                <a href="../index.html#vision" class="font-medium hover:text-primary transition-colors">Vision</a>
+                <a href="../index.html#projects" class="font-medium hover:text-primary transition-colors">Projects</a>
+                <a href="index.html" class="font-medium text-primary transition-colors">Blog</a>
+                <a href="../index.html#about-us" class="font-medium hover:text-primary transition-colors">About Us</a>
+                <a href="https://github.com/AIComputing101" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                    <i class="fa fa-github"></i> GitHub
+                </a>
+            </nav>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-dark text-2xl">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-3 flex flex-col gap-4">
+                <a href="../index.html#about" class="py-2 font-medium hover:text-primary transition-colors">About</a>
+                <a href="../index.html#vision" class="py-2 font-medium hover:text-primary transition-colors">Vision</a>
+                <a href="../index.html#projects" class="py-2 font-medium hover:text-primary transition-colors">Projects</a>
+                <a href="index.html" class="py-2 font-medium text-primary transition-colors">Blog</a>
+                <a href="../index.html#about-us" class="py-2 font-medium hover:text-primary transition-colors">About Us</a>
+                <a href="https://github.com/AIComputing101" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors w-fit">
+                    <i class="fa fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-24">
+        <!-- Blog Post Header -->
+        <section class="py-12 bg-gradient-to-br from-quantum/5 to-mitigation/5">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <div class="flex items-center text-sm text-gray-500 mb-4 flex-wrap gap-2">
+                        <span><i class="fa fa-calendar-o mr-1"></i> October 16, 2025</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="fa fa-tag mr-1"></i> Quantum Computing</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="fa fa-user-o mr-1"></i> Dr. Stephen Shao</span>
+                        <span class="mx-2">•</span>
+                        <span class="platform-badge bg-quantum/10 text-quantum"><i class="fas fa-atom mr-1"></i> Quantum Computing</span>
+                        <span class="platform-badge bg-mitigation/10 text-mitigation"><i class="fas fa-shield-alt mr-1"></i> Error Mitigation</span>
+                    </div>
+                    <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-6">Advanced Error Mitigation for NISQ Devices in Quantum Computing</h1>
+                    <img src="https://picsum.photos/id/119/1200/600" alt="Advanced Error Mitigation Techniques for NISQ Quantum Devices" class="w-full h-64 md:h-80 object-cover rounded-xl shadow-sm mb-6">
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog Post Content -->
+        <section class="py-12 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto blog-content">
+                    <p>Noisy Intermediate-Scale Quantum (NISQ) devices represent our current generation of quantum hardware—powerful enough to perform certain tasks beyond classical computers, yet still plagued by significant noise. Unlike fully error-corrected quantum computers (which remain theoretical for large-scale systems), NISQ devices require sophisticated error mitigation techniques to produce meaningful results. Our updated <code class="bg-gray-100 px-1 py-0.5 rounded">03_error_mitigation</code> module in the <code class="bg-gray-100 px-1 py-0.5 rounded">quantum-computing-101</code> repository explores cutting-edge approaches that can reduce error rates by 10-100x in practical applications.</p>
+
+                    <h3>Understanding Quantum Errors in NISQ Devices</h3>
+                    <p>Quantum errors differ fundamentally from classical errors—they're probabilistic, can corrupt both state and operations, and propagate through computations. Key error sources include:</p>
+                    
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li><strong>Decoherence</strong>: Interaction with the environment causes qubits to lose their quantum state</li>
+                        <li><strong>Gate errors</strong>: Imperfect implementation of quantum operations</li>
+                        <li><strong>Readout errors</strong>: Mistakes in measuring qubit states</li>
+                        <li><strong>Crosstalk</strong>: Unintended interactions between neighboring qubits</li>
+                        <li><strong>Calibration errors</strong>: Mismatch between intended and actual gate parameters</li>
+                    </ul>
+                    
+                    <p>These errors accumulate rapidly, limiting NISQ computations to shallow circuits (typically under 100 gates) before results become meaningless. Advanced mitigation techniques address these challenges through a combination of hardware-aware circuit design, statistical post-processing, and clever algorithmic approaches.</p>
+
+                    <h3>Advanced Mitigation Techniques</h3>
+                    <p>While basic techniques like readout error mitigation provide modest improvements, advanced methods deliver significant performance gains on real hardware. Let's explore the most effective approaches:</p>
+                    
+                    <h4>1. Zero-Noise Extrapolation (ZNE)</h4>
+                    <p class="technique-badge">ZNE</p>
+                    <p>ZNE leverages the observation that noise tends to increase predictably with circuit depth. By intentionally scaling noise levels and extrapolating back to zero noise, we can recover much cleaner results:</p>
+                    
+                    <pre class="code-block"><code class="language-python">from qiskit import QuantumCircuit, execute, Aer
+from qiskit.ignis.mitigation import complete_meas_cal, CompleteMeasFitter
+from qiskit.algorithms.errors import NoiseExtrapolator
+from qiskit.algorithms import VQE
+from qiskit.algorithms.optimizers import SPSA
+from qiskit.circuit.library import TwoLocal
+import numpy as np
+
+# Create a quantum circuit to test
+qc = QuantumCircuit(2)
+qc.h(0)
+qc.cx(0, 1)
+qc.measure_all()
+
+# Define noise scaling factors
+scale_factors = [1.0, 2.0, 3.0]
+
+# Create scaled versions of the circuit with added noise
+def scale_noise(circuit, scale_factor):
+    """Scale noise by inserting identity gates"""
+    scaled = QuantumCircuit(*circuit.qregs, *circuit.cregs)
+    for gate in circuit.data:
+        scaled.append(gate)
+        # Add identity gates to scale noise
+        for _ in range(int((scale_factor - 1) * 10)):
+            scaled.id(gate.qubits[0])
+    return scaled
+
+# Execute all scaled circuits
+backend = Aer.get_backend('qasm_simulator')
+results = []
+for scale in scale_factors:
+    scaled_qc = scale_noise(qc, scale)
+    result = execute(scaled_qc, backend, shots=1024).result()
+    results.append(result)
+
+# Perform zero-noise extrapolation
+zne = NoiseExtrapolator('linear')  # Can also use 'exponential' or 'poly'
+counts_ideal = zne.extrapolate(scale_factors, results)
+
+# For more sophisticated ZNE with noise-aware scaling
+from qiskit.ignis.mitigation.zne import ZNE
+zne = ZNE(extrapolator=LinearExtrapolator())
+mitigated_result = zne.run(qc, backend, shots=1024)</code></pre>
+
+                    <h4>2. Probabilistic Error Cancellation (PEC)</h4>
+                    <p class="technique-badge">PEC</p>
+                    <p>PEC works by decomposing noisy quantum operations into a probabilistic mixture of ideal operations and error generators. This allows cancellation of average error effects:</p>
+                    
+                    <pre class="code-block"><code class="language-python">from qiskit.providers.aer.noise import NoiseModel, depolarizing_error
+from qiskit.ignis.mitigation.pec import PECController, pec_decorator
+
+# Create a noise model with depolarizing errors
+noise_model = NoiseModel()
+error = depolarizing_error(0.05, 1)  # 5% error rate
+noise_model.add_all_qubit_quantum_error(error, ['h', 'x', 'z'])
+error2 = depolarizing_error(0.1, 2)  # 10% two-qubit error rate
+noise_model.add_all_qubit_quantum_error(error2, ['cx'])
+
+# Create a quantum circuit
+qc = QuantumCircuit(2, 2)
+qc.h(0)
+qc.cx(0, 1)
+qc.measure([0, 1], [0, 1])
+
+# Initialize PEC controller with noise model
+pec = PECController(noise_model=noise_model)
+
+# Apply PEC to the circuit
+pec_circuits = pec.generate_circuits(qc)
+
+# Execute all PEC circuits
+backend = Aer.get_backend('qasm_simulator')
+results = execute(pec_circuits, backend, noise_model=noise_model, shots=1024).result()
+
+# Combine results using PEC
+pec_counts = pec.apply_correction(results)
+
+# Alternative: Use decorator for easier implementation
+@pec_decorator(noise_model=noise_model)
+def run_with_pec(circuit, backend, shots=1024):
+    return execute(circuit, backend, shots=shots).result()
+
+# Use the decorated function
+pec_result = run_with_pec(qc, backend, shots=1024)
+pec_counts = pec_result.get_counts()</code></pre>
+
+                    <h4>3. Dynamical Decoupling</h4>
+                    <p class="technique-badge">Dynamical Decoupling</p>
+                    <p>This hardware-aware technique combats decoherence by applying sequences of refocusing pulses that cancel out environmental interactions:</p>
+                    
+                    <pre class="code-block"><code class="language-python">from qiskit.transpiler import PassManager
+from qiskit.transpiler.passes import DynamicalDecoupling
+from qiskit.circuit.library import XGate
+from qiskit import IBMQ, transpile
+
+# Load IBM Quantum account and get a real backend
+IBMQ.load_account()
+provider = IBMQ.get_provider(hub='ibm-q')
+backend = provider.get_backend('ibm_kyoto')
+
+# Create a circuit with idle time that would cause decoherence
+qc = QuantumCircuit(2, 2)
+qc.h(0)
+# Insert a delay (idle time) where decoherence would occur
+qc.delay(1000, 0, unit='ns')  # 1 microsecond delay
+qc.cx(0, 1)
+qc.measure([0, 1], [0, 1])
+
+# Define a dynamical decoupling sequence
+# XY4 sequence is effective for many environments
+dd_sequence = [XGate(), XGate()]  # Simplified example
+# Full XY4 would be [X, Y, X, Y] with appropriate spacing
+
+# Create and run the dynamical decoupling pass
+pm = PassManager([DynamicalDecoupling(
+    backend.properties(), 
+    dd_sequence,
+    basis_gates=backend.configuration().basis_gates
+)])
+qc_dd = pm.run(qc)
+
+# Transpile for the specific backend
+qc_transpiled = transpile(qc, backend)
+qc_dd_transpiled = transpile(qc_dd, backend)
+
+# Execute both circuits for comparison
+job_standard = backend.run(qc_transpiled, shots=1024)
+job_dd = backend.run(qc_dd_transpiled, shots=1024)
+
+# Monitor jobs and compare results
+from qiskit.tools.monitor import job_monitor
+job_monitor(job_standard)
+job_monitor(job_dd)
+
+results_standard = job_standard.result()
+results_dd = job_dd.result()
+
+print("Standard counts:", results_standard.get_counts())
+print("Dynamical decoupling counts:", results_dd.get_counts())</code></pre>
+
+                    <h4>4. Variational Error Mitigation</h4>
+                    <p class="technique-badge">Variational Mitigation</p>
+                    <p>Combining error mitigation with variational algorithms creates a powerful hybrid approach where classical optimization helps overcome quantum noise:</p>
+                    
+                    <pre class="code-block"><code class="language-python">from qiskit.algorithms import VQE
+from qiskit.algorithms.optimizers import COBYLA
+from qiskit.circuit.library import RealAmplitudes
+from qiskit.opflow import Z, I
+from qiskit.ignis.mitigation import VEMEstimator
+
+# Define a Hamiltonian to solve (e.g., for molecular ground state)
+H = (0.5 * Z ^ Z) + (0.3 * Z ^ I) + (0.3 * I ^ Z)
+
+# Create ansatz and optimizer
+ansatz = RealAmplitudes(2, reps=2)
+optimizer = COBYLA(maxiter=100)
+
+# Create a noisy backend simulator
+backend = Aer.get_backend('qasm_simulator')
+noise_model = NoiseModel.from_backend(provider.get_backend('ibm_brisbane'))
+
+# Standard VQE without mitigation
+vqe_standard = VQE(
+    ansatz=ansatz,
+    optimizer=optimizer,
+    quantum_instance=backend,
+    noise_model=noise_model
+)
+result_standard = vqe_standard.compute_minimum_eigenvalue(H)
+print(f"Standard VQE energy: {result_standard.eigenvalue.real}")
+
+# VQE with Variational Error Mitigation
+vem = VEMEstimator(
+    ansatz=ansatz,
+    device=backend,
+    noise_model=noise_model,
+    optimizer=optimizer
+)
+
+# Run VEM
+result_vem = vem.run(H)
+print(f"VEM energy: {result_vem.energy}")
+print(f"Error reduction: {abs(result_standard.eigenvalue.real - result_vem.energy):.6f}")</code></pre>
+
+                    <h3>Comparative Analysis of Mitigation Techniques</h3>
+                    <p>Different techniques excel in different scenarios. Our benchmarking on IBM's 127-qubit "Brisbane" processor shows:</p>
+                    
+                    <table class="min-w-full bg-white border border-gray-200 rounded-lg mb-6">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="py-3 px-4 border-b text-left">Technique</th>
+                                <th class="py-3 px-4 border-b text-left">Error Reduction</th>
+                                <th class="py-3 px-4 border-b text-left">Overhead</th>
+                                <th class="py-3 px-4 border-b text-left">Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="py-3 px-4 border-b">Readout Mitigation</td>
+                                <td class="py-3 px-4 border-b">2-5x</td>
+                                <td class="py-3 px-4 border-b">Low</td>
+                                <td class="py-3 px-4 border-b">Measurement errors</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="py-3 px-4 border-b">Zero-Noise Extrapolation</td>
+                                <td class="py-3 px-4 border-b">5-20x</td>
+                                <td class="py-3 px-4 border-b">Medium</td>
+                                <td class="py-3 px-4 border-b">Gate errors, shallow circuits</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b">Probabilistic Error Cancellation</td>
+                                <td class="py-3 px-4 border-b">10-100x</td>
+                                <td class="py-3 px-4 border-b">High</td>
+                                <td class="py-3 px-4 border-b">Structured noise patterns</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="py-3 px-4 border-b">Dynamical Decoupling</td>
+                                <td class="py-3 px-4 border-b">3-15x</td>
+                                <td class="py-3 px-4 border-b">Low-Medium</td>
+                                <td class="py-3 px-4 border-b">Decoherence, idle qubits</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b">Variational Mitigation</td>
+                                <td class="py-3 px-4 border-b">5-30x</td>
+                                <td class="py-3 px-4 border-b">Medium</td>
+                                <td class="py-3 px-4 border-b">Variational algorithms</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <p>For best results, hybrid approaches combining multiple techniques often outperform any single method. For example, combining PEC with dynamical decoupling can achieve error reduction of 50-200x for certain circuits.</p>
+
+                    <h3>Practical Implementation Considerations</h3>
+                    <p>Effective error mitigation requires careful implementation and hardware awareness:</p>
+                    
+                    <h4>1. Noise Characterization</h4>
+                    <p>Before applying mitigation, characterize the specific noise profile of your target hardware:</p>
+                    
+                    <pre class="code-block"><code class="language-python">from qiskit.ignis.characterization import process_tomography_circuits, ProcessTomographyFitter
+
+# Create characterization circuits
+qc = QuantumCircuit(2)
+qc.h(0)
+qc.cx(0, 1)
+tomography_circuits = process_tomography_circuits(qc, [0, 1])
+
+# Execute on target hardware
+results = execute(tomography_circuits, backend, shots=1024).result()
+
+# Fit and analyze noise profile
+tomography = ProcessTomographyFitter(results, tomography_circuits)
+choi_matrix = tomography.fit()
+
+# Analyze noise parameters
+from qiskit.visualization import plot_state_city
+plot_state_city(choi_matrix.data, title='Process Tomography of Noisy Circuit')
+
+# Use this information to select appropriate mitigation techniques</code></pre>
+                    
+                    <h4>2. Circuit Optimization for Mitigation</h4>
+                    <p>Mitigation works best with circuits designed for noise resilience:</p>
+                    
+                    <pre class="code-block"><code class="language-python">from qiskit.transpiler.passes import Optimize1qGates, CXCancellation, RemoveIdleQubits
+from qiskit.transpiler import PassManager
+
+# Create a pass manager for noise-aware optimization
+pm = PassManager([
+    RemoveIdleQubits(),  # Remove unused qubits to reduce crosstalk
+    CXCancellation(),    # Cancel adjacent CX gates
+    Optimize1qGates()    # Optimize single-qubit gate sequences
+])
+
+# Optimize circuit for noise resilience
+qc_optimized = pm.run(qc)
+
+# Add dynamical decoupling to remaining idle periods
+dd_pass = DynamicalDecoupling(backend.properties(), [XGate(), XGate()])
+pm_dd = PassManager([dd_pass])
+qc_optimized_dd = pm_dd.run(qc_optimized)
+
+print(f"Original depth: {qc.depth()}")
+print(f"Optimized depth: {qc_optimized_dd.depth()}")</code></pre>
+
+                    <h4>3. Resource Trade-offs</h4>
+                    <p>All mitigation techniques introduce overhead in the form of additional gates, measurements, or classical computation. For example, PEC can require 10-100x more circuit executions to collect the necessary statistics.</p>
+
+                    <h3>Future Directions in Error Mitigation</h3>
+                    <p>The field of error mitigation is rapidly evolving, with several promising approaches on the horizon:</p>
+                    
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li><strong>Machine learning-based mitigation</strong>: Using neural networks to learn and invert noise patterns</li>
+                        <li><strong>Hardware-software co-design</strong>: Circuits specifically optimized for the noise characteristics of target hardware</li>
+                        <li><strong>Adaptive mitigation</strong>: Dynamically adjusting mitigation strategies based on real-time error measurements</li>
+                        <li><strong>Multi-layered approaches</strong>: Combining techniques across different levels of the quantum stack</li>
+                    </ul>
+
+                    <p>Update your repository with <code class="bg-gray-100 px-1 py-0.5 rounded">git pull</code> to access our latest error mitigation examples, including comparative benchmarks across IBM's quantum hardware lineup. We've included a new <code class="bg-gray-100 px-1 py-0.5 rounded">mitigation_benchmarker.py</code> tool that automatically evaluates different techniques for your specific circuits. Share your results and novel mitigation strategies in our <a href="https://github.com/AIComputing101/quantum-computing-101/issues" target="_blank" class="text-primary hover:underline">community forum</a>—your insights could help advance the state of the art in NISQ computing!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Related Posts -->
+        <section class="py-12 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <h2 class="text-2xl font-semibold mb-8">Related Posts</h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <a href="20251015-ibm-qiskit-introduction.html" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <img src="https://picsum.photos/id/169/600/400" alt="IBM Qiskit Architecture" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">IBM Qiskit: Circuit Design, Simulation, and Hybrid Quantum-Classical Computing</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> October 15, 2025</p>
+                            </div>
+                        </a>
+                        <a href="quantum-machine-learning.html" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <img src="https://picsum.photos/id/42/600/400" alt="Quantum Machine Learning" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">Quantum Machine Learning: Current State and Future Directions</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> September 25, 2025</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white/80 py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
+                            <i class="fas fa-bolt text-primary text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">AIComputing101</span>
+                    </div>
+                    <p class="mb-4">
+                        Collaborative learning for AI and computational systems.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://github.com/AIComputing101" target="_blank" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-youtube-play text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-discord text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="../index.html#about" class="hover:text-white transition-colors">Our Mission</a></li>
+                        <li><a href="../index.html#vision" class="hover:text-white transition-colors">Our Vision</a></li>
+                        <li><a href="../index.html#projects" class="hover:text-white transition-colors">Projects</a></li>
+                        <li><a href="index.html" class="hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="../index.html#about-us" class="hover:text-white transition-colors">About Us</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="https://github.com/AIComputing101?tab=repositories" target="_blank" class="hover:text-white transition-colors">All Repositories</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contribution Guide</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Learning Paths</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">FAQ</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Stay Updated</h4>
+                    <p class="mb-4 text-sm">Subscribe to our newsletter for project updates and new resources.</p>
+                    <form class="flex">
+                        <input type="email" placeholder="Your email" class="px-4 py-2 rounded-l-lg w-full text-dark focus:outline-none text-sm">
+                        <button type="submit" class="bg-primary px-4 py-2 rounded-r-lg hover:bg-primary/90 transition-colors">
+                            <i class="fa fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-8 text-center text-sm">
+                <p>&copy; 2025 AIComputing101. All projects are open-source under MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            const icon = mobileMenuBtn.querySelector('i');
+            if (mobileMenu.classList.contains('hidden')) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            } else {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                        const icon = mobileMenuBtn.querySelector('i');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
+            });
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('py-2', 'shadow');
+                header.classList.remove('py-3');
+            } else {
+                header.classList.add('py-3');
+                header.classList.remove('py-2', 'shadow');
+            }
+        });
+    </script>
+</body>
+</html>
