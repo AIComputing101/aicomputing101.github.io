@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Which Components of ML, Deep Learning, and LLMs Benefit Most from GPUs?</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <!-- Add language support -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#7B61FF',
+                        gpu: '#76B900', // NVIDIA green-inspired for GPU theme
+                        ml: '#FF6B00',
+                        llm: '#5E35B1',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .blog-content p {
+                @apply mb-6 leading-relaxed;
+            }
+            .blog-content h3 {
+                @apply text-xl font-semibold mt-8 mb-4;
+            }
+            .blog-content h4 {
+                @apply text-lg font-medium mt-6 mb-3;
+            }
+            .blog-content h5 {
+                @apply text-base font-semibold mt-4 mb-2;
+            }
+            /* Code block styles */
+            .code-block {
+                @apply bg-gray-900 text-gray-100 rounded-lg p-4 my-6 overflow-x-auto;
+                font-family: 'Fira Code', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+                line-height: 1.6;
+                font-size: 0.875rem; /* 14px */
+            }
+            /* Inline code styles */
+            .blog-content code:not(.code-block code) {
+                @apply bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-medium;
+                font-family: 'Fira Code', monospace;
+            }
+            .component-badge {
+                @apply inline-block px-2 py-0.5 text-xs bg-gpu/10 text-gpu rounded-full mr-1;
+            }
+            .benefit-badge {
+                @apply inline-block px-2 py-0.5 text-xs bg-green-100 text-green-800 rounded-full mr-1;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-light text-dark antialiased">
+    <!-- Navigation -->
+    <header class="fixed w-full bg-white/90 backdrop-blur-sm shadow-sm z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="../index.html" class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+                    <i class="fas fa-bolt text-white text-xl"></i>
+                </div>
+                <span class="text-xl font-bold text-primary">AIComputing101</span>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="../index.html#about" class="font-medium hover:text-primary transition-colors">About</a>
+                <a href="../index.html#projects" class="font-medium hover:text-primary transition-colors">Projects</a>
+                <a href="index.html" class="font-medium text-primary transition-colors">Blog</a>
+                <a href="../index.html#team" class="font-medium hover:text-primary transition-colors">Team</a>
+                <a href="https://github.com/AIComputing101" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </nav>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-dark text-2xl">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-3 flex flex-col gap-4">
+                <a href="../index.html#about" class="py-2 font-medium hover:text-primary transition-colors">About</a>
+                <a href="../index.html#projects" class="py-2 font-medium hover:text-primary transition-colors">Projects</a>
+                <a href="index.html" class="py-2 font-medium text-primary transition-colors">Blog</a>
+                <a href="../index.html#team" class="py-2 font-medium hover:text-primary transition-colors">Team</a>
+                <a href="https://github.com/AIComputing101" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors w-fit">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-24">
+        <!-- Blog Post Header -->
+        <section class="py-12 bg-gradient-to-br from-gpu/5 to-ml/5">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <div class="flex items-center text-sm text-gray-500 mb-4 flex-wrap gap-2">
+                        <span><i class="fa fa-calendar-o mr-1"></i> November 2, 2025</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="fa fa-tag mr-1"></i> Machine Learning</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="fa fa-user-o mr-1"></i> Dr. GPU Optimization</span>
+                        <span class="mx-2">•</span>
+                        <span class="component-badge bg-gpu/10 text-gpu"><i class="fas fa-microchip mr-1"></i> GPU Acceleration</span>
+                        <span class="component-badge bg-ml/10 text-ml"><i class="fas fa-brain mr-1"></i> ML/DL</span>
+                    </div>
+                    <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-6">Which Components of ML, Deep Learning, and LLMs Benefit Most from GPUs?</h1>
+                    <img src="https://picsum.photos/id/96/1200/600" alt="GPU acceleration for machine learning and deep learning workloads" class="w-full h-64 md:h-80 object-cover rounded-xl shadow-sm mb-6">
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog Post Content -->
+        <section class="py-12 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto blog-content">
+                    <p>Graphics Processing Units (GPUs) have revolutionized machine learning by enabling the training and deployment of increasingly complex models. Unlike CPUs, which excel at sequential tasks with few cores, GPUs pack thousands of smaller cores optimized for parallel processing—making them ideal for the matrix and vector operations that form the backbone of modern AI. But not all machine learning components benefit equally from GPU acceleration. Our analysis, based on benchmarks in the <code class="bg-gray-100 px-1 py-0.5 rounded">05_gpu_optimization</code> module of the <code class="bg-gray-100 px-1 py-0.5 rounded">quantum-computing-101</code> repository, reveals which components of traditional ML, deep learning, and large language models (LLMs) see the greatest performance gains with GPU acceleration.</p>
+
+                    <h3>Why GPUs Excel at ML Workloads</h3>
+                    <p>GPUs deliver speedups through three key advantages:</p>
+                    
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li><strong>Massive parallelism</strong>: Thousands of cores process multiple data points simultaneously</li>
+                        <li><strong>High memory bandwidth</strong>: Specialized memory architectures handle large datasets efficiently</li>
+                        <li><strong>Optimized math libraries</strong>: CUDA, cuDNN, and TensorRT accelerate matrix operations critical to ML</li>
+                    </ul>
+                    
+                    <p>These advantages shine when processing <em>large batches of data</em> through <em>computationally intensive, parallelizable operations</em>—hallmarks of many modern ML workflows.</p>
+
+                    <h3>Traditional Machine Learning Components</h3>
+                    <p>Traditional ML algorithms show more variable GPU benefits than deep learning, with gains heavily dependent on dataset size and algorithm type:</p>
+                    
+                    <h4>1. Large-Scale Matrix Operations</h4>
+                    <p class="component-badge">Matrix Operations</p>
+                    <p class="benefit-badge">10-100x Speedup</p>
+                    <p>Algorithms relying on matrix decompositions (PCA, SVMs with RBF kernels) or distance calculations (k-NN) see significant gains with GPU acceleration, especially for high-dimensional data:</p>
+                    
+                    <pre class="code-block"><code class="language-python">import numpy as np
+from sklearn.decomposition import PCA
+from sklearn.svm import SVC
+import time
+import cupy as cp  # GPU-accelerated NumPy alternative
+
+# Generate large high-dimensional dataset (1M samples, 500 features)
+X_cpu = np.random.rand(1_000_000, 500).astype(np.float32)
+
+# CPU PCA
+start = time.time()
+pca_cpu = PCA(n_components=100)
+X_pca_cpu = pca_cpu.fit_transform(X_cpu)
+cpu_time = time.time() - start
+print(f"CPU PCA time: {cpu_time:.2f}s")
+
+# GPU PCA using CuPy
+X_gpu = cp.array(X_cpu)
+start = time.time()
+# CuPy's SVD-based PCA implementation
+U, S, V = cp.linalg.svd(X_gpu - cp.mean(X_gpu, axis=0), full_matrices=False)
+X_pca_gpu = cp.dot(U[:, :100], cp.diag(S[:100])).get()  # Transfer result to CPU
+gpu_time = time.time() - start
+print(f"GPU PCA time: {gpu_time:.2f}s")
+print(f"Speedup: {cpu_time / gpu_time:.1f}x")
+
+# SVM with RBF kernel (GPU-accelerated via cuML)
+from cuml.svm import SVC as SVC_gpu
+
+# Smaller sample for demonstration (SVM scales poorly to 1M samples even on GPU)
+X_small = X_pca_cpu[:10_000]
+y = np.random.randint(0, 2, size=10_000)
+
+# CPU SVM
+start = time.time()
+svm_cpu = SVC(kernel='rbf')
+svm_cpu.fit(X_small, y)
+cpu_time = time.time() - start
+print(f"\nCPU SVM time: {cpu_time:.2f}s")
+
+# GPU SVM
+start = time.time()
+svm_gpu = SVC_gpu(kernel='rbf')
+svm_gpu.fit(X_small, y)
+gpu_time = time.time() - start
+print(f"GPU SVM time: {gpu_time:.2f}s")
+print(f"Speedup: {cpu_time / gpu_time:.1f}x")</code></pre>
+
+                    <h4>2. Gradient Descent Optimization</h4>
+                    <p class="component-badge">Gradient Descent</p>
+                    <p class="benefit-badge">5-50x Speedup</p>
+                    <p>Batch gradient descent and mini-batch training for models like logistic regression and neural networks benefit from parallelized gradient calculations:</p>
+                    
+                    <pre class="code-block"><code class="language-python">import torch
+
+# Generate data
+X = torch.randn(1_000_000, 100).float()
+y = torch.randint(0, 2, (1_000_000,)).float()
+
+# Logistic regression model
+class LogisticRegression(torch.nn.Module):
+    def __init__(self, input_dim):
+        super().__init__()
+        self.linear = torch.nn.Linear(input_dim, 1)
+        
+    def forward(self, x):
+        return torch.sigmoid(self.linear(x))
+
+# CPU training
+model_cpu = LogisticRegression(100)
+criterion = torch.nn.BCELoss()
+optimizer = torch.optim.SGD(model_cpu.parameters(), lr=0.01)
+
+start = time.time()
+for epoch in range(10):
+    # Mini-batch training
+    for i in range(0, len(X), 1024):
+        X_batch = X[i:i+1024]
+        y_batch = y[i:i+1024].unsqueeze(1)
+        
+        optimizer.zero_grad()
+        outputs = model_cpu(X_batch)
+        loss = criterion(outputs, y_batch)
+        loss.backward()
+        optimizer.step()
+cpu_time = time.time() - start
+print(f"CPU training time: {cpu_time:.2f}s")
+
+# GPU training
+model_gpu = LogisticRegression(100).cuda()
+criterion = torch.nn.BCELoss()
+optimizer = torch.optim.SGD(model_gpu.parameters(), lr=0.01)
+
+X_gpu = X.cuda()
+y_gpu = y.cuda()
+
+start = time.time()
+for epoch in range(10):
+    for i in range(0, len(X_gpu), 1024):
+        X_batch = X_gpu[i:i+1024]
+        y_batch = y_gpu[i:i+1024].unsqueeze(1)
+        
+        optimizer.zero_grad()
+        outputs = model_gpu(X_batch)
+        loss = criterion(outputs, y_batch)
+        loss.backward()
+        optimizer.step()
+gpu_time = time.time() - start
+print(f"GPU training time: {gpu_time:.2f}s")
+print(f"Speedup: {cpu_time / gpu_time:.1f}x")</code></pre>
+
+                    <h4>3. When Traditional ML Doesn't Need GPUs</h4>
+                    <p>Simple models (linear regression, decision trees) or small datasets often show minimal GPU benefits. For example, training a decision tree on 10,000 samples with 10 features runs only 1.2-1.5x faster on a GPU due to the algorithm's sequential nature.</p>
+
+                    <h3>Deep Learning Components</h3>
+                    <p>Deep learning workloads are where GPUs truly shine, with nearly all components benefiting significantly from parallel processing:</p>
+                    
+                    <h4>1. Convolutional Layers</h4>
+                    <p class="component-badge">Convolutional Layers</p>
+                    <p class="benefit-badge">50-500x Speedup</p>
+                    <p>Convolutions—applying filters across image regions—are inherently parallel. GPUs accelerate both forward and backward passes in CNNs:</p>
+                    
+                    <pre class="code-block"><code class="language-python">import torch
+import torch.nn as nn
+import torchvision.models as models
+
+# Load pre-trained ResNet50
+model_cpu = models.resnet50()
+model_gpu = models.resnet50().cuda()
+
+# Generate batch of 32 images (224x224 RGB)
+batch_size = 32
+images_cpu = torch.randn(batch_size, 3, 224, 224)
+images_gpu = images_cpu.cuda()
+
+# Time CPU forward pass
+start = time.time()
+outputs_cpu = model_cpu(images_cpu)
+cpu_time = time.time() - start
+print(f"CPU forward pass: {cpu_time:.4f}s")
+
+# Time GPU forward pass (include warm-up)
+model_gpu(images_gpu)  # Warm-up
+start = time.time()
+outputs_gpu = model_gpu(images_gpu)
+gpu_time = time.time() - start
+print(f"GPU forward pass: {gpu_time:.4f}s")
+print(f"Speedup: {cpu_time / gpu_time:.1f}x")
+
+# Time backward pass (with dummy loss)
+loss_cpu = torch.sum(outputs_cpu)
+start = time.time()
+loss_cpu.backward()
+cpu_backward = time.time() - start
+
+loss_gpu = torch.sum(outputs_gpu)
+start = time.time()
+loss_gpu.backward()
+gpu_backward = time.time() - start
+
+print(f"\nCPU backward pass: {cpu_backward:.4f}s")
+print(f"GPU backward pass: {gpu_backward:.4f}s")
+print(f"Backward speedup: {cpu_backward / gpu_backward:.1f}x")</code></pre>
+
+                    <h4>2. Recurrent Layers & Transformers</h4>
+                    <p class="component-badge">RNNs & Transformers</p>
+                    <p class="benefit-badge">30-300x Speedup</p>
+                    <p>While RNNs have sequential dependencies, modern implementations (CuDNN LSTMs/GRUs) use parallelization across batches and features. Transformers, with their self-attention mechanisms, are highly parallelizable:</p>
+                    
+                    <pre class="code-block"><code class="language-python">from transformers import BertModel, BertTokenizer
+
+# Load BERT model
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+model_cpu = BertModel.from_pretrained('bert-base-uncased')
+model_gpu = BertModel.from_pretrained('bert-base-uncased').cuda()
+
+# Create batch of text
+texts = ["This is a sample sentence for BERT processing"] * 32
+inputs = tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
+inputs_gpu = {k: v.cuda() for k, v in inputs.items()}
+
+# CPU inference
+start = time.time()
+outputs_cpu = model_cpu(**inputs)
+cpu_time = time.time() - start
+print(f"CPU BERT inference: {cpu_time:.4f}s")
+
+# GPU inference (with warm-up)
+model_gpu(** inputs_gpu)  # Warm-up
+start = time.time()
+outputs_gpu = model_gpu(**inputs_gpu)
+gpu_time = time.time() - start
+print(f"GPU BERT inference: {gpu_time:.4f}s")
+print(f"Speedup: {cpu_time / gpu_time:.1f}x")</code></pre>
+
+                    <h4>3. Activation Functions & Loss Calculation</h4>
+                    <p class="component-badge">Activations & Loss</p>
+                    <p class="benefit-badge">10-50x Speedup</p>
+                    <p>Element-wise operations like ReLU, sigmoid, and softmax, as well as loss calculations (cross-entropy, MSE), parallelize perfectly across GPU cores:</p>
+                    
+                    <pre class="code-block"><code class="language-python">import torch.nn.functional as F
+
+# Generate large tensor (1M elements)
+logits_cpu = torch.randn(1024, 10000)  # Batch of 1024 with 10k classes
+logits_gpu = logits_cpu.cuda()
+labels = torch.randint(0, 10000, (1024,))
+labels_gpu = labels.cuda()
+
+# CPU activation + loss
+start = time.time()
+activations_cpu = F.softmax(logits_cpu, dim=1)
+loss_cpu = F.cross_entropy(logits_cpu, labels)
+cpu_time = time.time() - start
+
+# GPU activation + loss
+start = time.time()
+activations_gpu = F.softmax(logits_gpu, dim=1)
+loss_gpu = F.cross_entropy(logits_gpu, labels_gpu)
+gpu_time = time.time() - start
+
+print(f"CPU activation + loss: {cpu_time:.4f}s")
+print(f"GPU activation + loss: {gpu_time:.4f}s")
+print(f"Speedup: {cpu_time / gpu_time:.1f}x")</code></pre>
+
+                    <h3>LLM-Specific Components</h3>
+                    <p>Large Language Models (LLMs) with billions of parameters are only practical due to GPU acceleration. Key components with the highest gains include:</p>
+                    
+                    <h4>1. Self-Attention Mechanisms</h4>
+                    <p class="component-badge">Self-Attention</p>
+                    <p class="benefit-badge">100-1000x Speedup</p>
+                    <p>The core of transformers, self-attention involves massive matrix multiplications (Q, K, V projections and scores) that are highly optimized for GPUs:</p>
+                    
+                    <pre class="code-block"><code class="language-python">def scaled_dot_product_attention(q, k, v, mask=None):
+    """Basic self-attention implementation"""
+    d_k = q.size(-1)
+    scores = torch.matmul(q, k.transpose(-2, -1)) / torch.sqrt(torch.tensor(d_k, dtype=torch.float32))
+    
+    if mask is not None:
+        scores = scores.masked_fill(mask == 0, -1e9)
+        
+    attn = F.softmax(scores, dim=-1)
+    output = torch.matmul(attn, v)
+    return output, attn
+
+# Create query, key, value tensors (batch=32, heads=12, seq=512, dim=64)
+q_cpu = torch.randn(32, 12, 512, 64)
+k_cpu = torch.randn(32, 12, 512, 64)
+v_cpu = torch.randn(32, 12, 512, 64)
+
+q_gpu = q_cpu.cuda()
+k_gpu = k_cpu.cuda()
+v_gpu = v_cpu.cuda()
+
+# CPU attention
+start = time.time()
+output_cpu, attn_cpu = scaled_dot_product_attention(q_cpu, k_cpu, v_cpu)
+cpu_time = time.time() - start
+
+# GPU attention
+start = time.time()
+output_gpu, attn_gpu = scaled_dot_product_attention(q_gpu, k_gpu, v_gpu)
+gpu_time = time.time() - start
+
+print(f"CPU self-attention: {cpu_time:.4f}s")
+print(f"GPU self-attention: {gpu_time:.4f}s")
+print(f"Speedup: {cpu_time / gpu_time:.1f}x")</code></pre>
+
+                    <h4>2. Embedding Layers & Positional Encoding</h4>
+                    <p class="component-badge">Embeddings</p>
+                    <p class="benefit-badge">20-100x Speedup</p>
+                    <p>Token and positional embeddings involve large lookup tables and element-wise operations that parallelize well:</p>
+                    
+                    <h4>3. Distributed Training of Large Models</h4>
+                    <p class="component-badge">Distributed Training</p>
+                    <p class="benefit-badge">Near-linear Scaling</p>
+                    <p>LLMs with >10B parameters require distributed training across multiple GPUs using techniques like data parallelism and tensor parallelism:</p>
+                    
+                    <pre class="code-block"><code class="language-python">import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
+import os
+
+# Setup distributed environment (simplified example)
+os.environ['MASTER_ADDR'] = 'localhost'
+os.environ['MASTER_PORT'] = '12355'
+dist.init_process_group('nccl', rank=0, world_size=4)  # 4 GPUs
+
+# Create model and move to GPU
+model = models.resnet50().cuda(0)  # For demonstration; replace with LLM
+ddp_model = DDP(model, device_ids=[0])  # Automatically distributes across GPUs
+
+# Training loop with distributed data sampler
+# (Full implementation requires proper dataset partitioning)
+optimizer = torch.optim.SGD(ddp_model.parameters(), lr=0.01)
+
+# Each GPU processes a portion of the batch
+for epoch in range(10):
+    for inputs, labels in distributed_dataloader:
+        inputs = inputs.cuda(0)
+        labels = labels.cuda(0)
+        
+        optimizer.zero_grad()
+        outputs = ddp_model(inputs)
+        loss = F.cross_entropy(outputs, labels)
+        loss.backward()
+        optimizer.step()
+
+dist.destroy_process_group()</code></pre>
+
+                    <h3>Component Comparison Table</h3>
+                    <p>The following table summarizes GPU benefits across different ML components:</p>
+                    
+                    <table class="min-w-full bg-white border border-gray-200 rounded-lg mb-6">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="py-3 px-4 border-b text-left">Component Type</th>
+                                <th class="py-3 px-4 border-b text-left">Examples</th>
+                                <th class="py-3 px-4 border-b text-left">GPU Speedup</th>
+                                <th class="py-3 px-4 border-b text-left">Key Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="py-3 px-4 border-b" rowspan="3">Traditional ML</td>
+                                <td class="py-3 px-4 border-b">Matrix decompositions (PCA)</td>
+                                <td class="py-3 px-4 border-b">10-100x</td>
+                                <td class="py-3 px-4 border-b">Parallel linear algebra</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="py-3 px-4 border-b">SVM with RBF kernel</td>
+                                <td class="py-3 px-4 border-b">5-50x</td>
+                                <td class="py-3 px-4 border-b">Batch distance calculations</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b">Decision trees, small regression</td>
+                                <td class="py-3 px-4 border-b">1-2x</td>
+                                <td class="py-3 px-4 border-b">Sequential algorithm design</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="py-3 px-4 border-b" rowspan="3">Deep Learning</td>
+                                <td class="py-3 px-4 border-b">Convolutional layers</td>
+                                <td class="py-3 px-4 border-b">50-500x</td>
+                                <td class="py-3 px-4 border-b">Parallel filter applications</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b">Activation functions</td>
+                                <td class="py-3 px-4 border-b">10-50x</td>
+                                <td class="py-3 px-4 border-b">Element-wise parallelism</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="py-3 px-4 border-b">RNN/GRU/LSTM</td>
+                                <td class="py-3 px-4 border-b">30-300x</td>
+                                <td class="py-3 px-4 border-b">Batch and feature parallelism</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b" rowspan="3">LLMs</td>
+                                <td class="py-3 px-4 border-b">Self-attention</td>
+                                <td class="py-3 px-4 border-b">100-1000x</td>
+                                <td class="py-3 px-4 border-b">Massive matrix multiplications</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="py-3 px-4 border-b">Embedding layers</td>
+                                <td class="py-3 px-4 border-b">20-100x</td>
+                                <td class="py-3 px-4 border-b">Parallel lookups and transformations</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b">Distributed training</td>
+                                <td class="py-3 px-4 border-b">Near-linear with GPUs</td>
+                                <td class="py-3 px-4 border-b">Model/data partitioning across GPUs</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Best Practices for GPU Acceleration</h3>
+                    <p>To maximize GPU benefits in your workflows:</p>
+                    
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li><strong>Use appropriate batch sizes</strong>: Larger batches (within memory limits) improve GPU utilization</li>
+                        <li><strong>Optimize data transfer</strong>: Minimize CPU-GPU data movement using pinned memory</li>
+                        <li><strong>Leverage mixed precision</strong>: Use FP16/FP8 where possible to reduce memory usage and speed up computations</li>
+                        <li><strong>Profile first</strong>: Identify bottlenecks with tools like NVIDIA NSight or PyTorch Profiler</li>
+                        <li><strong>Use optimized libraries</strong>: Prefer cuDNN, cuBLAS, and TensorRT over custom implementations</li>
+                    </ul>
+                    
+                    <pre class="code-block"><code class="language-python"># Example: Mixed precision training in PyTorch
+from torch.cuda.amp import GradScaler, autocast
+
+model = models.resnet50().cuda()
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+
+# Initialize mixed precision components
+scaler = GradScaler()
+
+# Training loop with mixed precision
+for inputs, labels in dataloader:
+    inputs = inputs.cuda()
+    labels = labels.cuda()
+    
+    optimizer.zero_grad()
+    
+    # Forward pass with autocasting to FP16
+    with autocast():
+        outputs = model(inputs)
+        loss = criterion(outputs, labels)
+    
+    # Backward pass with gradient scaling
+    scaler.scale(loss).backward()
+    scaler.step(optimizer)
+    scaler.update()
+
+print(f"Mixed precision reduces memory usage by ~50% and speeds up by ~2x")</code></pre>
+
+                    <p>Update your repository with <code class="bg-gray-100 px-1 py-0.5 rounded">git pull</code> to access our GPU benchmarking toolkit, which includes component-specific speed tests and optimization checklists. The <code class="bg-gray-100 px-1 py-0.5 rounded">gpu_profiler.py</code> script helps identify which parts of your ML pipeline would benefit most from GPU acceleration. Share your optimization results and novel approaches in our <a href="https://github.com/AIComputing101/quantum-computing-101/issues" target="_blank" class="text-primary hover:underline">community forum</a>—collaborative insights help the entire community maximize GPU efficiency!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Related Posts -->
+        <section class="py-12 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <h2 class="text-2xl font-semibold mb-8">Related Posts</h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <a href="quantum-machine-learning.html" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <img src="https://picsum.photos/id/42/600/400" alt="Quantum Machine Learning" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">Quantum Machine Learning: Current State and Future Directions</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> September 25, 2025</p>
+                            </div>
+                        </a>
+                        <a href="advanced-error-mitigation-nisq.html" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <img src="https://picsum.photos/id/119/600/400" alt="Advanced Error Mitigation" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">Advanced Error Mitigation for NISQ Devices</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> October 8, 2025</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white/80 py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
+                            <i class="fas fa-bolt text-primary text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">AIComputing101</span>
+                    </div>
+                    <p class="mb-4">
+                        Collaborative learning for AI and computational systems.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://github.com/AIComputing101" target="_blank" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-youtube-play text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-discord text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="../index.html#about" class="hover:text-white transition-colors">Our Mission</a></li>
+                        <li><a href="../index.html#projects" class="hover:text-white transition-colors">Projects</a></li>
+                        <li><a href="index.html" class="hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="../index.html#team" class="hover:text-white transition-colors">Team</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="https://github.com/AIComputing101?tab=repositories" target="_blank" class="hover:text-white transition-colors">All Repositories</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contribution Guide</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Learning Paths</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">FAQ</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Stay Updated</h4>
+                    <p class="mb-4 text-sm">Subscribe to our newsletter for project updates and new resources.</p>
+                    <form class="flex">
+                        <input type="email" placeholder="Your email" class="px-4 py-2 rounded-l-lg w-full text-dark focus:outline-none text-sm">
+                        <button type="submit" class="bg-primary px-4 py-2 rounded-r-lg hover:bg-primary/90 transition-colors">
+                            <i class="fa fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-8 text-center text-sm">
+                <p>&copy; 2025 AIComputing101. All projects are open-source under MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            const icon = mobileMenuBtn.querySelector('i');
+            if (mobileMenu.classList.contains('hidden')) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            } else {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                        const icon = mobileMenuBtn.querySelector('i');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
+            });
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('py-2', 'shadow');
+                header.classList.remove('py-3');
+            } else {
+                header.classList.add('py-3');
+                header.classList.remove('py-2', 'shadow');
+            }
+        });
+    </script>
+</body>
+</html>
+    
