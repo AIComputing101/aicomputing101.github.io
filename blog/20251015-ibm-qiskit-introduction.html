@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IBM Qiskit: Circuit Design, Simulation, and Hybrid Quantum-Classical Computing</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <!-- Add language support -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#7B61FF',
+                        ibm: '#0066FF',
+                        quantum: '#6441A4',
+                        classical: '#2D7D42',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .blog-content p {
+                @apply mb-6 leading-relaxed;
+            }
+            .blog-content h3 {
+                @apply text-xl font-semibold mt-8 mb-4;
+            }
+            .blog-content h4 {
+                @apply text-lg font-medium mt-6 mb-3;
+            }
+            .blog-content h5 {
+                @apply text-base font-semibold mt-4 mb-2;
+            }
+            /* Code block styles */
+            .code-block {
+                @apply bg-gray-900 text-gray-100 rounded-lg p-4 my-6 overflow-x-auto;
+                font-family: 'Fira Code', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+                line-height: 1.6;
+                font-size: 0.875rem; /* 14px */
+            }
+            /* Inline code styles */
+            .blog-content code:not(.code-block code) {
+                @apply bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-medium;
+                font-family: 'Fira Code', monospace;
+            }
+            .platform-badge {
+                @apply inline-block px-2 py-1 text-xs font-semibold rounded-full mr-2;
+            }
+            .feature-badge {
+                @apply inline-block px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full mr-1;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-light text-dark antialiased">
+    <!-- Navigation -->
+    <header class="fixed w-full bg-white/90 backdrop-blur-sm shadow-sm z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="../index.html" class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+                    <i class="fas fa-bolt text-white text-xl"></i>
+                </div>
+                <span class="text-xl font-bold text-primary">AIComputing101</span>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="../index.html#about" class="font-medium hover:text-primary transition-colors">About</a>
+                <a href="../index.html#vision" class="font-medium hover:text-primary transition-colors">Vision</a>
+                <a href="../index.html#projects" class="font-medium hover:text-primary transition-colors">Projects</a>
+                <a href="index.html" class="font-medium text-primary transition-colors">Blog</a>
+                <a href="../index.html#about-us" class="font-medium hover:text-primary transition-colors">About Us</a>
+                <a href="https://github.com/AIComputing101" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                    <i class="fa fa-github"></i> GitHub
+                </a>
+            </nav>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-dark text-2xl">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-3 flex flex-col gap-4">
+                <a href="../index.html#about" class="py-2 font-medium hover:text-primary transition-colors">About</a>
+                <a href="../index.html#vision" class="py-2 font-medium hover:text-primary transition-colors">Vision</a>
+                <a href="../index.html#projects" class="py-2 font-medium hover:text-primary transition-colors">Projects</a>
+                <a href="index.html" class="py-2 font-medium text-primary transition-colors">Blog</a>
+                <a href="../index.html#about-us" class="py-2 font-medium hover:text-primary transition-colors">About Us</a>
+                <a href="https://github.com/AIComputing101" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors w-fit">
+                    <i class="fa fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-24">
+        <!-- Blog Post Header -->
+        <section class="py-12 bg-gradient-to-br from-ibm/5 to-quantum/5">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <div class="flex items-center text-sm text-gray-500 mb-4 flex-wrap gap-2">
+                        <span><i class="fa fa-calendar-o mr-1"></i> October 15, 2025</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="fa fa-tag mr-1"></i> Quantum Computing</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="fa fa-user-o mr-1"></i> Dr. Qubit Expert</span>
+                        <span class="mx-2">•</span>
+                        <span class="platform-badge bg-ibm/10 text-ibm"><i class="fas fa-microchip mr-1"></i> Qiskit</span>
+                        <span class="platform-badge bg-quantum/10 text-quantum"><i class="fas fa-atom mr-1"></i> Quantum</span>
+                    </div>
+                    <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-6">IBM Qiskit: Circuit Design, Simulation, and Hybrid Quantum-Classical Computing</h1>
+                    <img src="https://picsum.photos/id/169/1200/600" alt="IBM Qiskit Architecture and Quantum Circuit Design" class="w-full h-64 md:h-80 object-cover rounded-xl shadow-sm mb-6">
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog Post Content -->
+        <section class="py-12 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto blog-content">
+                    <p>The <code class="bg-gray-100 px-1 py-0.5 rounded">quantum-computing-101</code> repository has been updated to focus on IBM's Qiskit ecosystem, the leading open-source framework for quantum computing. This guide explores Qiskit's architecture, circuit design principles, simulation capabilities through Qiskit Aer, and the critical role of hybrid quantum-classical computing in addressing current quantum technology limitations.</p>
+
+                    <h3>Understanding Qiskit Architecture</h3>
+                    <p>Qiskit is a comprehensive software stack designed to work with quantum hardware while abstracting many of the low-level complexities. Its modular architecture consists of four primary components:</p>
+                    
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li><strong>Qiskit Terra</strong>: The foundation layer for composing quantum circuits and working with quantum programs</li>
+                        <li><strong>Qiskit Aer</strong>: High-performance simulators with noise models for testing quantum circuits</li>
+                        <li><strong>Qiskit Ignis</strong>: Tools for quantum hardware characterization, verification, and error mitigation</li>
+                        <li><strong>Qiskit Aqua</strong>: Domain-specific applications and algorithms for quantum computing</li>
+                    </ul>
+                    
+                    <p>This modular approach allows developers to work at different abstraction levels, from direct quantum circuit manipulation to high-level algorithm implementation.</p>
+
+                    <h3>Qiskit Circuit Design Fundamentals</h3>
+                    <p>At the core of quantum computing is the quantum circuit – a sequence of quantum gates applied to quantum bits (qubits). Qiskit provides an intuitive interface for creating and manipulating these circuits.</p>
+                    
+                    <h4>Basic Circuit Construction</h4>
+                    <pre class="code-block"><code class="language-python">from qiskit import QuantumCircuit, execute, Aer
+from qiskit.visualization import plot_histogram
+import matplotlib.pyplot as plt
+
+# Create a quantum circuit with 2 qubits and 2 classical bits
+qc = QuantumCircuit(2, 2)
+
+# Add a Hadamard gate to the first qubit - puts it into superposition
+qc.h(0)
+
+# Add a controlled-X (CNOT) gate between qubit 0 and 1
+qc.cx(0, 1)
+
+# Measure the qubits and store results in classical bits
+qc.measure([0, 1], [0, 1])
+
+# Draw the circuit
+qc.draw(output='mpl')
+plt.show()
+
+# Execute on a simulator
+simulator = Aer.get_backend('qasm_simulator')
+result = execute(qc, simulator, shots=1024).result()
+counts = result.get_counts(qc)
+
+# Plot results
+plot_histogram(counts)
+plt.show()</code></pre>
+
+                    <p>This simple circuit creates an entangled state between two qubits, demonstrating one of the fundamental phenomena of quantum mechanics that powers quantum computing's potential advantages.</p>
+                    
+                    <h4>Advanced Circuit Design Patterns</h4>
+                    <p>Complex quantum algorithms often use repeating patterns and modular components. Qiskit supports circuit composition and reuse:</p>
+                    
+                    <pre class="code-block"><code class="language-python">def create_quantum_adder(n):
+    """Create a quantum circuit that adds 1 to an n-qubit number"""
+    adder = QuantumCircuit(n+1, name="Adder +1")
+    
+    # Apply X gate to the least significant bit
+    adder.x(0)
+    
+    # Create carry chain with controlled-X gates
+    for i in range(n-1):
+        adder.cx(i, i+1)
+        
+    # Return as a subcircuit that can be embedded in larger circuits
+    return adder.to_instruction()
+
+# Create a 3-qubit adder circuit
+adder = create_quantum_adder(3)
+
+# Create main circuit with 4 qubits (3 data + 1 carry) and 4 classical bits
+main_circuit = QuantumCircuit(4, 4)
+
+# Initialize input state to |011⟩
+main_circuit.x(1)
+main_circuit.x(2)
+
+# Add the adder subcircuit
+main_circuit.append(adder, [0, 1, 2, 3])
+
+# Measure all qubits
+main_circuit.measure(range(4), range(4))
+
+# Draw the full circuit
+main_circuit.draw(output='mpl')
+plt.show()</code></pre>
+
+                    <h3>Qiskit Aer: Powerful Quantum Simulation</h3>
+                    <p>Qiskit Aer provides state-of-the-art simulation capabilities that are essential for quantum algorithm development, especially given the current limitations of physical quantum hardware.</p>
+                    
+                    <h4>Choosing the Right Simulator</h4>
+                    <p>Aer offers multiple simulator backends optimized for different use cases:</p>
+                    
+                    <pre class="code-block"><code class="language-python">from qiskit import Aer
+
+# List all available Aer backends
+for backend in Aer.backends():
+    print(backend.name())
+
+# 1. Statevector simulator - for full state representation (small circuits)
+statevector_sim = Aer.get_backend('statevector_simulator')
+
+# 2. QASM simulator - for sampling results like real quantum hardware
+qasm_sim = Aer.get_backend('qasm_simulator')
+
+# 3. Unitary simulator - for calculating circuit unitary matrix
+unitary_sim = Aer.get_backend('unitary_simulator')
+
+# 4. Pulse simulator - for low-level hardware pulse simulation
+pulse_sim = Aer.get_backend('pulse_simulator')</code></pre>
+
+                    <h4>Noise Modeling for Realistic Simulation</h4>
+                    <p>One of Aer's most powerful features is its ability to simulate noise, critical for developing error mitigation strategies:</p>
+                    
+                    <pre class="code-block"><code class="language-python">from qiskit.providers.aer.noise import NoiseModel
+from qiskit.providers.aer.noise.errors import depolarizing_error, thermal_relaxation_error
+
+# Create a noise model
+noise_model = NoiseModel()
+
+# Add depolarizing error to Hadamard gates
+error = depolarizing_error(0.01, 1)
+noise_model.add_all_qubit_quantum_error(error, ['h'])
+
+# Add thermal relaxation error to measurement
+t1 = 50.0  # T1 relaxation time in microseconds
+t2 = 70.0  # T2 relaxation time in microseconds
+error_meas = thermal_relaxation_error(t1, t2, 0.1)
+noise_model.add_all_qubit_quantum_error(error_meas, ['measure'])
+
+# Use the noise model in simulation
+result_noisy = execute(
+    qc,  # Our quantum circuit from earlier
+    Aer.get_backend('qasm_simulator'),
+    noise_model=noise_model,
+    shots=1024
+).result()
+
+# Compare with ideal results
+counts_noisy = result_noisy.get_counts()
+plot_histogram([counts, counts_noisy], legend=['Ideal', 'With Noise'])
+plt.show()</code></pre>
+
+                    <p>For more accurate noise modeling, Qiskit can even import noise profiles from real IBM quantum hardware:</p>
+                    
+                    <pre class="code-block"><code class="language-python">from qiskit import IBMQ
+
+# Load IBM Quantum account
+IBMQ.load_account()
+provider = IBMQ.get_provider(hub='ibm-q')
+
+# Get noise model from a real quantum device
+device = provider.get_backend('ibm_brisbane')  # 127-qubit processor
+noise_model = NoiseModel.from_backend(device)
+
+# Get coupling map and basis gates from the real device
+coupling_map = device.configuration().coupling_map
+basis_gates = noise_model.basis_gates
+
+# Simulate using the real device's noise profile
+result = execute(
+    qc,
+    Aer.get_backend('qasm_simulator'),
+    coupling_map=coupling_map,
+    basis_gates=basis_gates,
+    noise_model=noise_model
+).result()</code></pre>
+
+                    <h3>Hybrid Quantum-Classical Computing</h3>
+                    <p>Current quantum hardware (NISQ devices) has limited qubit counts and high error rates, making pure quantum algorithms impractical for most real-world problems. Hybrid quantum-classical approaches address these limitations by combining quantum processing with classical computing.</p>
+                    
+                    <h4>Variational Quantum Algorithms</h4>
+                    <p>Variational algorithms like VQE (Variational Quantum Eigensolver) and QAOA (Quantum Approximate Optimization Algorithm) use this hybrid approach:</p>
+                    
+                    <pre class="code-block"><code class="language-python">from qiskit.algorithms import VQE
+from qiskit.algorithms.optimizers import SPSA
+from qiskit.circuit.library import TwoLocal
+from qiskit.opflow import Z, I
+
+# Define a Hamiltonian (problem to solve)
+# For example, H2 molecule Hamiltonian simplified
+hamiltonian = (0.5 * Z ^ Z) + (0.3 * Z ^ I) + (0.3 * I ^ Z)
+
+# Create a quantum ansatz (parameterized circuit)
+ansatz = TwoLocal(
+    num_qubits=2,
+    rotation_blocks=['ry', 'rz'],
+    entanglement_blocks='cz',
+    entanglement='linear',
+    reps=2
+)
+
+# Classical optimizer
+optimizer = SPSA(maxiter=100)
+
+# Create VQE instance
+vqe = VQE(
+    ansatz=ansatz,
+    optimizer=optimizer,
+    quantum_instance=Aer.get_backend('qasm_simulator')
+)
+
+# Run VQE - hybrid quantum-classical process
+result = vqe.compute_minimum_eigenvalue(operator=hamiltonian)
+print(f"Ground state energy: {result.eigenvalue.real}")
+print(f"Optimized parameters: {result.optimal_parameters}")</code></pre>
+
+                    <h4>Quantum Machine Learning with Hybrid Approaches</h4>
+                    <p>Hybrid techniques are particularly powerful in quantum machine learning:</p>
+                    
+                    <pre class="code-block"><code class="language-python">from qiskit_machine_learning.algorithms import VQC
+from qiskit_machine_learning.datasets import ad_hoc_data
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+
+# Generate sample data
+X, y, _, _ = ad_hoc_data(
+    training_size=100,
+    test_size=50,
+    n=2,  # 2 qubits
+    gap=0.3,
+    one_hot=False
+)
+
+# Scale data to [0, 2π] for angle encoding
+scaler = MinMaxScaler(feature_range=(0, 2 * np.pi))
+X_scaled = scaler.fit_transform(X)
+
+# Split into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(
+    X_scaled, y, test_size=0.2, random_state=42
+)
+
+# Create quantum feature map and ansatz
+feature_map = TwoLocal(2, ['ry', 'rz'], 'cz', reps=1)
+ansatz = TwoLocal(2, ['ry', 'rz'], 'cz', reps=2)
+
+# Create hybrid quantum-classical classifier
+vqc = VQC(
+    feature_map=feature_map,
+    ansatz=ansatz,
+    optimizer=SPSA(maxiter=100),
+    quantum_instance=Aer.get_backend('qasm_simulator')
+)
+
+# Train the model (hybrid process)
+vqc.fit(X_train, y_train)
+
+# Evaluate
+score = vqc.score(X_test, y_test)
+print(f"Test accuracy: {score:.2f}")</code></pre>
+
+                    <h3>Addressing Quantum Computing Challenges</h3>
+                    <p>Hybrid approaches help mitigate several key challenges in current quantum computing:</p>
+                    
+                    <h4>1. Limited Qubit Count</h4>
+                    <p>By breaking problems into smaller subproblems processed sequentially on quantum hardware and combined classically, hybrid methods work within the constraints of NISQ devices.</p>
+                    
+                    <h4>2. High Error Rates</h4>
+                    <p>Classical post-processing can mitigate errors through techniques like zero-noise extrapolation and readout error mitigation:</p>
+                    
+                    <pre class="code-block"><code class="language-python">from qiskit.ignis.mitigation.measurement import CompleteMeasFitter
+
+# Create measurement fitter to characterize noise
+meas_calibs, state_labels = CompleteMeasFitter.from_backend(device)
+meas_fitter = CompleteMeasFitter(meas_calibs, state_labels)
+
+# Get mitigation filter
+meas_filter = meas_fitter.filter
+
+# Apply mitigation to results
+mitigated_results = meas_filter.apply(result_noisy)
+mitigated_counts = mitigated_results.get_counts()
+
+# Compare results
+plot_histogram([counts, counts_noisy, mitigated_counts], 
+               legend=['Ideal', 'Noisy', 'Mitigated'])
+plt.show()</code></pre>
+                    
+                    <h4>3. Quantum-Classical Communication Overhead</h4>
+                    <p>Qiskit's architecture minimizes data transfer between quantum and classical components through optimized circuit batching and result processing.</p>
+                    
+                    <h4>4. Algorithm Design Complexity</h4>
+                    <p>Qiskit's high-level libraries abstract many complexities, allowing developers to focus on problem-solving rather than low-level quantum mechanics.</p>
+
+                    <h3>Production-Grade Quantum Computing with Qiskit</h3>
+                    <p>For enterprise applications, Qiskit provides additional tools and best practices:</p>
+                    
+                    <h4>Circuit Optimization</h4>
+                    <p>Reducing circuit depth and gate count is critical for execution on real hardware:</p>
+                    
+                    <pre class="code-block"><code class="language-python">from qiskit.transpiler import PassManager
+from qiskit.transpiler.passes import Optimize1qGates, CXCancellation
+
+# Create a pass manager with optimization passes
+pm = PassManager([Optimize1qGates(), CXCancellation()])
+
+# Optimize the circuit
+optimized_circuit = pm.run(main_circuit)
+
+print(f"Original circuit depth: {main_circuit.depth()}")
+print(f"Optimized circuit depth: {optimized_circuit.depth()}")
+print(f"Original CNOT count: {main_circuit.count_ops().get('cx', 0)}")
+print(f"Optimized CNOT count: {optimized_circuit.count_ops().get('cx', 0)}")</code></pre>
+                    
+                    <h4>Accessing Real Quantum Hardware</h4>
+                    <p>Qiskit seamlessly transitions from simulation to real hardware:</p>
+                    
+                    <pre class="code-block"><code class="language-python"># Get the least busy backend with at least 2 qubits
+backends = provider.backends(
+    filters=lambda x: x.configuration().n_qubits >= 2 
+    and not x.configuration().simulator 
+    and x.status().operational==True
+)
+backend = provider.get_backend('ibm_kyoto')  # 433-qubit processor
+
+# Transpile the circuit for the specific hardware
+from qiskit import transpile
+transpiled_circuit = transpile(qc, backend, optimization_level=3)
+
+# Execute on real quantum hardware
+job = backend.run(transpiled_circuit, shots=1024)
+
+# Monitor job progress
+from qiskit.tools.monitor import job_monitor
+job_monitor(job)
+
+# Get results
+real_results = job.result()
+real_counts = real_results.get_counts()</code></pre>
+
+                    <p>Update your repository with <code class="bg-gray-100 px-1 py-0.5 rounded">git pull</code> to access the latest Qiskit examples, including advanced hybrid algorithms and noise mitigation techniques. Share your implementations and findings in our <a href="https://github.com/AIComputing101/quantum-computing-101/issues" target="_blank" class="text-primary hover:underline">discussion forum</a>—we're particularly interested in novel hybrid approaches that address current quantum computing limitations.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Related Posts -->
+        <section class="py-12 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <h2 class="text-2xl font-semibold mb-8">Related Posts</h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <a href="quantum-error-mitigation.html" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <img src="https://picsum.photos/id/237/600/400" alt="Quantum Error Mitigation Techniques" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">Advanced Error Mitigation for NISQ Devices</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> October 8, 2025</p>
+                            </div>
+                        </a>
+                        <a href="quantum-machine-learning.html" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <img src="https://picsum.photos/id/42/600/400" alt="Quantum Machine Learning" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">Quantum Machine Learning: Current State and Future Directions</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> September 25, 2025</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white/80 py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
+                            <i class="fas fa-bolt text-primary text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">AIComputing101</span>
+                    </div>
+                    <p class="mb-4">
+                        Collaborative learning for AI and computational systems.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://github.com/AIComputing101" target="_blank" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-youtube-play text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-discord text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="../index.html#about" class="hover:text-white transition-colors">Our Mission</a></li>
+                        <li><a href="../index.html#vision" class="hover:text-white transition-colors">Our Vision</a></li>
+                        <li><a href="../index.html#projects" class="hover:text-white transition-colors">Projects</a></li>
+                        <li><a href="index.html" class="hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="../index.html#about-us" class="hover:text-white transition-colors">About Us</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="https://github.com/AIComputing101?tab=repositories" target="_blank" class="hover:text-white transition-colors">All Repositories</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contribution Guide</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Learning Paths</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">FAQ</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Stay Updated</h4>
+                    <p class="mb-4 text-sm">Subscribe to our newsletter for project updates and new resources.</p>
+                    <form class="flex">
+                        <input type="email" placeholder="Your email" class="px-4 py-2 rounded-l-lg w-full text-dark focus:outline-none text-sm">
+                        <button type="submit" class="bg-primary px-4 py-2 rounded-r-lg hover:bg-primary/90 transition-colors">
+                            <i class="fa fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-8 text-center text-sm">
+                <p>&copy; 2025 AIComputing101. All projects are open-source under MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            const icon = mobileMenuBtn.querySelector('i');
+            if (mobileMenu.classList.contains('hidden')) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            } else {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                        const icon = mobileMenuBtn.querySelector('i');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
+            });
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('py-2', 'shadow');
+                header.classList.remove('py-3');
+            } else {
+                header.classList.add('py-3');
+                header.classList.remove('py-2', 'shadow');
+            }
+        });
+    </script>
+</body>
+</html>
