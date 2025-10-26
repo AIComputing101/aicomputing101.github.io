@@ -1,0 +1,74 @@
+{
+  "posts": [
+    {
+      "id": "20251026-how-to-contribute-triton",
+      "title": "Contributing to Triton Compiler: Optimizing Matmul for AMD GPUs",
+      "description": "Explains the process of optimizing the Triton compiler for AMD GPUs, focusing on the challenges and solutions in adapting ML workloads.",
+      "date": "2025-10-26",
+      "dateDisplay": "Oct 26, 2025",
+      "tags": ["Compiler Development", "GPU"],
+      "image": "https://picsum.photos/id/160/600/600",
+      "url": "20251026-how-to-contribute-triton.html"
+    },
+    {
+      "id": "20251015-evolution-of-compilers",
+      "title": "The Evolution of Compilers: From Minimal to GPUs to Quantum-Classical Hybrids",
+      "description": "From your \"return 42\" POC to GPU compilers and beyond, the journey is defined by abstraction (IR layers) and hardware synergy.",
+      "date": "2025-10-15",
+      "dateDisplay": "Oct 15, 2025",
+      "tags": ["Compiler"],
+      "image": "https://picsum.photos/id/180/600/400",
+      "url": "20251015-evolution-of-compilers.html"
+    },
+    {
+      "id": "20251015-gpu-optimization",
+      "title": "Optimizing GPU Kernels: Strategies for NVIDIA CUDA and AMD ROCm",
+      "description": "Master practical, hands-on approach while providing a more comprehensive view of GPU optimization strategies applicable across the major hardware ecosystems",
+      "date": "2025-10-15",
+      "dateDisplay": "Oct 15, 2025",
+      "tags": ["GPU"],
+      "image": "https://picsum.photos/id/0/600/400",
+      "url": "20251015-gpu-optimization.html"
+    },
+    {
+      "id": "20251015-ibm-qiskit-introduction",
+      "title": "IBM Qiskit: Circuit Design, Simulation, and Hybrid Quantum-Classical Computing",
+      "description": "Explores Qiskit's architecture, circuit design principles, simulation capabilities, and the critical role of hybrid quantum-classical computing in addressing current quantum technology limitations.",
+      "date": "2025-10-15",
+      "dateDisplay": "Oct 15, 2025",
+      "tags": ["Quantum Computing"],
+      "image": "https://picsum.photos/id/160/600/400",
+      "url": "20251015-ibm-qiskit-introduction.html"
+    },
+    {
+      "id": "20251007-error-mitigation-quantum",
+      "title": "Advanced Error Mitigation for NISQ Devices in Quantum Computing",
+      "description": "A comprehensive guide to advanced error mitigation techniques for NISQ devices, covering readout error mitigation, zero-noise extrapolation, probabilistic error cancellation, and dynamical decoupling.",
+      "date": "2025-10-07",
+      "dateDisplay": "Oct 7, 2025",
+      "tags": ["Quantum Computing"],
+      "image": "https://picsum.photos/id/180/600/400",
+      "url": "20251007-error-mitigation-quantum.html"
+    },
+    {
+      "id": "20251007-quantum-machine-learning",
+      "title": "Quantum Machine Learning: Current State and Future Directions",
+      "description": "A comprehensive overview of the current landscape of quantum machine learning, exploring key techniques, challenges, and future directions for research and application.",
+      "date": "2025-10-07",
+      "dateDisplay": "Oct 7, 2025",
+      "tags": ["Quantum Computing", "Machine Learning"],
+      "image": "https://picsum.photos/id/0/600/400",
+      "url": "20251007-quantum-machine-learning.html"
+    },
+    {
+      "id": "20251001-gpu-accelerated-ml-components",
+      "title": "Which Components of ML, Deep Learning, and LLMs Benefit Most from GPUs?",
+      "description": "Explains why GPUs outperform CPUs for specific ML tasks, focusing on parallelism, memory bandwidth, and optimized math libraries.",
+      "date": "2025-10-01",
+      "dateDisplay": "Oct 1, 2025",
+      "tags": ["GPU Programming", "Machine Learning"],
+      "image": "https://picsum.photos/id/160/600/400",
+      "url": "20251001-gpu-accelerated-ml-components.html"
+    }
+  ]
+}

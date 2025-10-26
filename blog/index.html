@@ -42,6 +42,23 @@
                 @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
             }
         }
+        
+        .tag-btn {
+            @apply px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300;
+        }
+        
+        .tag-btn.active {
+            @apply bg-primary text-white;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="font-inter bg-light text-dark antialiased">
@@ -97,172 +114,56 @@
             </div>
         </section>
 
+        <!-- Filters and Search -->
+        <section class="py-8 bg-white border-b">
+            <div class="container mx-auto px-4">
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                        <!-- Search -->
+                        <div class="w-full md:w-96">
+                            <div class="relative">
+                                <input 
+                                    type="text" 
+                                    id="searchInput" 
+                                    placeholder="Search posts..." 
+                                    class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                                >
+                                <i class="fa fa-search absolute left-3 top-3 text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Tag Filter -->
+                        <div class="flex flex-wrap gap-2" id="tagFilter">
+                            <button class="tag-btn active px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-primary text-white" data-tag="all">
+                                All Posts
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- All Blog Posts -->
         <section class="py-16 bg-white">
             <div class="container mx-auto px-4">
                 <div class="max-w-4xl mx-auto">
+                    <!-- Post Count -->
+                    <div class="mb-6">
+                        <p class="text-gray-600" id="postCount">Loading posts...</p>
+                    </div>
+                    
                     <!-- Post List -->
-                    <div class="space-y-12">
-                        <!-- Post 1 -->
-                        <article class="bg-gray-50 rounded-xl overflow-hidden shadow-sm card-hover">
-                            <div class="md:flex">
-                                <div class="md:w-1/3">
-                                    <img src="https://picsum.photos/id/180/600/400" alt="Compiler Update" class="w-full h-full object-cover">
-                                </div>
-                                <div class="md:w-2/3 p-6">
-                                    <div class="flex items-center text-sm text-gray-500 mb-3">
-                                        <span><i class="fa fa-calendar-o mr-1"></i> Oct 15, 2025</span>
-                                        <span class="mx-2">•</span>
-                                        <span><i class="fa fa-tag mr-1"></i> Compiler</span>
-                                    </div>
-                                    <h3 class="text-2xl font-semibold mb-2">The Evolution of Compilers: From Minimal to GPUs to Quantum-Classical Hybrids</h3>
-                                    <p class="text-gray-600 mb-4">
-                                        From your "return 42" POC to GPU compilers and beyond, the journey is defined by abstraction (IR layers) and hardware synergy.
-                                    </p>
-                                    <a href="20251015-evolution-of-compilers.html" class="inline-flex items-center text-primary font-medium hover:underline">
-                                        Read full post <i class="fa fa-arrow-right ml-2"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </article>
-
-                        <!-- Post 2 -->
-                        <article class="bg-gray-50 rounded-xl overflow-hidden shadow-sm card-hover">
-                            <div class="md:flex">
-                                <div class="md:w-1/3">
-                                    <img src="https://picsum.photos/id/0/600/400" alt="GPU Programming Guide" class="w-full h-full object-cover">
-                                </div>
-                                <div class="md:w-2/3 p-6">
-                                    <div class="flex items-center text-sm text-gray-500 mb-3">
-                                        <span><i class="fa fa-calendar-o mr-1"></i> Oct 15, 2025</span>
-                                        <span class="mx-2">•</span>
-                                        <span><i class="fa fa-tag mr-1"></i> GPU</span>
-                                    </div>
-                                    <h3 class="text-2xl font-semibold mb-2">Optimizing GPU Kernels: Strategies for NVIDIA CUDA and AMD ROCm</h3>
-                                    <p class="text-gray-600 mb-4">
-                                        Master practical, hands-on approach while providing a more comprehensive view of GPU optimization strategies applicable across the major hardware ecosystems
-                                    </p>
-                                    <a href="20251015-gpu-optimization.html" class="inline-flex items-center text-primary font-medium hover:underline">
-                                        Read full post <i class="fa fa-arrow-right ml-2"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </article>
-
-                        <!-- Post 3 -->
-                        <article class="bg-gray-50 rounded-xl overflow-hidden shadow-sm card-hover">
-                            <div class="md:flex">
-                                <div class="md:w-1/3">
-                                    <img src="https://picsum.photos/id/160/600/400" alt="Quantum Computing" class="w-full h-full object-cover">
-                                </div>
-                                <div class="md:w-2/3 p-6">
-                                    <div class="flex items-center text-sm text-gray-500 mb-3">
-                                        <span><i class="fa fa-calendar-o mr-1"></i> Oct 15, 2025</span>
-                                        <span class="mx-2">•</span>
-                                        <span><i class="fa fa-tag mr-1"></i> Quantum Computing</span>
-                                    </div>
-                                    <h3 class="text-2xl font-semibold mb-2">IBM Qiskit: Circuit Design, Simulation, and Hybrid Quantum-Classical Computing</h3>
-                                    <p class="text-gray-600 mb-4">
-                                        Explores Qiskit's architecture, circuit design principles, simulation capabilities, and the critical role of hybrid quantum-classical computing in addressing current quantum technology limitations.
-                                    </p>
-                                    <a href="20251015-ibm-qiskit-introduction.html" class="inline-flex items-center text-primary font-medium hover:underline">
-                                        Read full post <i class="fa fa-arrow-right ml-2"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </article>
-
-                        <!-- Post 4 -->
-                        <article class="bg-gray-50 rounded-xl overflow-hidden shadow-sm card-hover">
-                            <div class="md:flex">
-                                <div class="md:w-1/3">
-                                    <img src="https://picsum.photos/id/180/600/400" alt="Quantum Computing" class="w-full h-full object-cover">
-                                </div>
-                                <div class="md:w-2/3 p-6">
-                                    <div class="flex items-center text-sm text-gray-500 mb-3">
-                                        <span><i class="fa fa-calendar-o mr-1"></i> Oct 7, 2025</span>
-                                        <span class="mx-2">•</span>
-                                        <span><i class="fa fa-tag mr-1"></i> Quantum Computing</span>
-                                    </div>
-                                    <h3 class="text-2xl font-semibold mb-2">Advanced Error Mitigation for NISQ Devices in Quantum Computing</h3>
-                                    <p class="text-gray-600 mb-4">
-                                        A comprehensive guide to advanced error mitigation techniques for NISQ devices, covering readout error mitigation, zero-noise extrapolation, probabilistic error cancellation, and dynamical decoupling.
-                                    </p>
-                                    <a href="20251007-error-mitigation-quantum.html" class="inline-flex items-center text-primary font-medium hover:underline">
-                                        Read full post <i class="fa fa-arrow-right ml-2"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </article>    
-                        
-                        <!-- Post 5 -->
-                        <article class="bg-gray-50 rounded-xl overflow-hidden shadow-sm card-hover">
-                            <div class="md:flex">
-                                <div class="md:w-1/3">
-                                    <img src="https://picsum.photos/id/0/600/400" alt="Quantum Computing" class="w-full h-full object-cover">
-                                </div>
-                                <div class="md:w-2/3 p-6">
-                                    <div class="flex items-center text-sm text-gray-500 mb-3">
-                                        <span><i class="fa fa-calendar-o mr-1"></i> Oct 7, 2025</span>
-                                        <span class="mx-2">•</span>
-                                        <span><i class="fa fa-tag mr-1"></i> Quantum Computing</span>
-                                    </div>
-                                    <h3 class="text-2xl font-semibold mb-2">Quantum Machine Learning: Current State and Future Directions</h3>
-                                    <p class="text-gray-600 mb-4">
-                                        A comprehensive overview of the current landscape of quantum machine learning, exploring key techniques, challenges, and future directions for research and application.
-                                    </p>
-                                    <a href="20251007-quantum-machine-learning.html" class="inline-flex items-center text-primary font-medium hover:underline">
-                                        Read full post <i class="fa fa-arrow-right ml-2"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </article>   
-                        
-                        <!-- Post 6 -->
-                        <article class="bg-gray-50 rounded-xl overflow-hidden shadow-sm card-hover">
-                            <div class="md:flex">
-                                <div class="md:w-1/3">
-                                    <img src="https://picsum.photos/id/160/600/400" alt="GPU Programming" class="w-full h-full object-cover">
-                                </div>
-                                <div class="md:w-2/3 p-6">
-                                    <div class="flex items-center text-sm text-gray-500 mb-3">
-                                        <span><i class="fa fa-calendar-o mr-1"></i> Oct 1, 2025</span>
-                                        <span class="mx-2">•</span>
-                                        <span><i class="fa fa-tag mr-1"></i> GPU Programming</span>
-                                    </div>
-                                    <h3 class="text-2xl font-semibold mb-2">Which Components of ML, Deep Learning, and LLMs Benefit Most from GPUs?</h3>
-                                    <p class="text-gray-600 mb-4">
-                                        Explains why GPUs outperform CPUs for specific ML tasks, focusing on parallelism, memory bandwidth, and optimized math libraries.
-                                    </p>
-                                    <a href="20251001-gpu-accelerated-ml-components.html" class="inline-flex items-center text-primary font-medium hover:underline">
-                                        Read full post <i class="fa fa-arrow-right ml-2"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </article>        
-                        
-                        <!-- Post 7 -->
-                        <article class="bg-gray-50 rounded-xl overflow-hidden shadow-sm card-hover">
-                            <div class="md:flex">
-                                <div class="md:w-1/3">
-                                    <img src="https://picsum.photos/id/160/600/600" alt="GPU Programming" class="w-full h-full object-cover">
-                                </div>
-                                <div class="md:w-2/3 p-6">
-                                    <div class="flex items-center text-sm text-gray-500 mb-3">
-                                        <span><i class="fa fa-calendar-o mr-1"></i> Oct 20, 2025</span>
-                                        <span class="mx-2">•</span>
-                                        <span><i class="fa fa-tag mr-1"></i> Compiler Development</span>
-                                    </div>
-                                    <h3 class="text-2xl font-semibold mb-2">Contributing to Triton Compiler: Optimizing Matmul for AMD GPUs</h3>
-                                    <p class="text-gray-600 mb-4">
-                                        Explains the process of optimizing the Triton compiler for AMD GPUs, focusing on the challenges and solutions in adapting ML workloads.
-                                    </p>
-                                    <a href="20251026-how-to-contribute-triton.html" class="inline-flex items-center text-primary font-medium hover:underline">
-                                        Read full post <i class="fa fa-arrow-right ml-2"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </article>                             
+                    <div class="space-y-12" id="postList">
+                        <!-- Posts will be loaded dynamically -->
+                    </div>
+                    
+                    <!-- No results message -->
+                    <div id="noResults" class="hidden text-center py-12">
+                        <i class="fa fa-search text-6xl text-gray-300 mb-4"></i>
+                        <p class="text-xl text-gray-600">No posts found matching your criteria.</p>
+                        <button onclick="resetFilters()" class="mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                            Clear Filters
+                        </button>
                     </div>
                 </div>
             </div>
@@ -340,6 +241,174 @@
 
     <!-- JavaScript (same as index.html) -->
     <script>
+        // Global state
+        let allPosts = [];
+        let currentTag = 'all';
+        let searchQuery = '';
+
+        // Load posts from JSON
+        async function loadPosts() {
+            try {
+                const response = await fetch('posts.json');
+                const data = await response.json();
+                allPosts = data.posts;
+                
+                // Sort by date (newest first)
+                allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                // Initialize tags
+                initializeTags();
+                
+                // Display posts
+                displayPosts();
+            } catch (error) {
+                console.error('Error loading posts:', error);
+                document.getElementById('postList').innerHTML = `
+                    <div class="text-center py-12">
+                        <p class="text-xl text-red-600">Error loading posts. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize tag filters
+        function initializeTags() {
+            const tagSet = new Set();
+            allPosts.forEach(post => {
+                post.tags.forEach(tag => tagSet.add(tag));
+            });
+            
+            const tagFilter = document.getElementById('tagFilter');
+            const sortedTags = Array.from(tagSet).sort();
+            
+            sortedTags.forEach(tag => {
+                const button = document.createElement('button');
+                button.className = 'tag-btn';
+                button.setAttribute('data-tag', tag);
+                button.textContent = tag;
+                button.onclick = () => filterByTag(tag);
+                tagFilter.appendChild(button);
+            });
+        }
+
+        // Filter posts by tag
+        function filterByTag(tag) {
+            currentTag = tag;
+            
+            // Update button states
+            document.querySelectorAll('.tag-btn').forEach(btn => {
+                if (btn.getAttribute('data-tag') === tag) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            displayPosts();
+        }
+
+        // Filter posts by search query
+        function searchPosts(query) {
+            searchQuery = query.toLowerCase();
+            displayPosts();
+        }
+
+        // Display filtered posts
+        function displayPosts() {
+            const postList = document.getElementById('postList');
+            const noResults = document.getElementById('noResults');
+            const postCount = document.getElementById('postCount');
+            
+            // Filter posts
+            let filteredPosts = allPosts;
+            
+            // Filter by tag
+            if (currentTag !== 'all') {
+                filteredPosts = filteredPosts.filter(post => 
+                    post.tags.includes(currentTag)
+                );
+            }
+            
+            // Filter by search
+            if (searchQuery) {
+                filteredPosts = filteredPosts.filter(post => 
+                    post.title.toLowerCase().includes(searchQuery) ||
+                    post.description.toLowerCase().includes(searchQuery) ||
+                    post.tags.some(tag => tag.toLowerCase().includes(searchQuery))
+                );
+            }
+            
+            // Update count
+            const countText = filteredPosts.length === 1 ? 'post' : 'posts';
+            postCount.textContent = `Showing ${filteredPosts.length} ${countText}`;
+            
+            // Show/hide no results
+            if (filteredPosts.length === 0) {
+                postList.innerHTML = '';
+                noResults.classList.remove('hidden');
+                return;
+            } else {
+                noResults.classList.add('hidden');
+            }
+            
+            // Render posts
+            postList.innerHTML = filteredPosts.map(post => `
+                <article class="bg-gray-50 rounded-xl overflow-hidden shadow-sm card-hover fade-in">
+                    <div class="md:flex">
+                        <div class="md:w-1/3">
+                            <img src="${post.image}" alt="${post.title}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="md:w-2/3 p-6">
+                            <div class="flex items-center text-sm text-gray-500 mb-3">
+                                <span><i class="fa fa-calendar-o mr-1"></i> ${post.dateDisplay}</span>
+                                <span class="mx-2">•</span>
+                                <span><i class="fa fa-tag mr-1"></i> ${post.tags.join(', ')}</span>
+                            </div>
+                            <h3 class="text-2xl font-semibold mb-2">${post.title}</h3>
+                            <p class="text-gray-600 mb-4">
+                                ${post.description}
+                            </p>
+                            <a href="${post.url}" class="inline-flex items-center text-primary font-medium hover:underline">
+                                Read full post <i class="fa fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        // Reset all filters
+        function resetFilters() {
+            currentTag = 'all';
+            searchQuery = '';
+            document.getElementById('searchInput').value = '';
+            
+            document.querySelectorAll('.tag-btn').forEach(btn => {
+                if (btn.getAttribute('data-tag') === 'all') {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            displayPosts();
+        }
+
+        // Search input handler with debounce
+        let searchTimeout;
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    searchPosts(e.target.value);
+                }, 300);
+            });
+            
+            // Load posts on page load
+            loadPosts();
+        });
+
         // Mobile menu toggle
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
