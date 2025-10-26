@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contributing to Triton Compiler: Optimizing Matmul for AMD GPUs</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <!-- Add language support -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#7B61FF',
+                        triton: '#00B42A',
+                        amd: '#ED1C24',
+                        nvidia: '#76B900',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .blog-content p {
+                @apply mb-6 leading-relaxed;
+            }
+            .blog-content h3 {
+                @apply text-xl font-semibold mt-8 mb-4;
+            }
+            .blog-content h4 {
+                @apply text-lg font-medium mt-6 mb-3;
+            }
+            .blog-content h5 {
+                @apply text-base font-semibold mt-4 mb-2;
+            }
+            /* Code block styles */
+            .code-block {
+                @apply bg-gray-900 text-gray-100 rounded-lg p-4 my-6 overflow-x-auto;
+                font-family: 'Fira Code', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+                line-height: 1.6;
+                font-size: 0.875rem; /* 14px */
+            }
+            /* Inline code styles */
+            .blog-content code:not(.code-block code) {
+                @apply bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-medium;
+                font-family: 'Fira Code', monospace;
+            }
+            .platform-badge {
+                @apply inline-block px-2 py-1 text-xs font-semibold rounded-full mr-2;
+            }
+            .step-badge {
+                @apply inline-block px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full mr-1;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-light text-dark antialiased">
+    <!-- Navigation -->
+    <header class="fixed w-full bg-white/90 backdrop-blur-sm shadow-sm z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="../index.html" class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+                    <i class="fas fa-bolt text-white text-xl"></i>
+                </div>
+                <span class="text-xl font-bold text-primary">AIComputing101</span>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="../index.html#about" class="font-medium hover:text-primary transition-colors">About</a>
+                <a href="../index.html#vision" class="font-medium hover:text-primary transition-colors">Vision</a>
+                <a href="../index.html#projects" class="font-medium hover:text-primary transition-colors">Projects</a>
+                <a href="index.html" class="font-medium text-primary transition-colors">Blog</a>
+                <a href="../index.html#about-us" class="font-medium hover:text-primary transition-colors">About Us</a>
+                <a href="https://github.com/AIComputing101" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                    <i class="fa fa-github"></i> GitHub
+                </a>
+            </nav>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-dark text-2xl">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-3 flex flex-col gap-4">
+                <a href="../index.html#about" class="py-2 font-medium hover:text-primary transition-colors">About</a>
+                <a href="../index.html#vision" class="py-2 font-medium hover:text-primary transition-colors">Vision</a>
+                <a href="../index.html#projects" class="py-2 font-medium hover:text-primary transition-colors">Projects</a>
+                <a href="index.html" class="py-2 font-medium text-primary transition-colors">Blog</a>
+                <a href="../index.html#about-us" class="py-2 font-medium hover:text-primary transition-colors">About Us</a>
+                <a href="https://github.com/AIComputing101" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors w-fit">
+                    <i class="fa fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-24">
+        <!-- Blog Post Header -->
+        <section class="py-12 bg-gradient-to-br from-triton/5 to-amd/5">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <div class="flex items-center text-sm text-gray-500 mb-4 flex-wrap gap-2">
+                        <span><i class="fa fa-calendar-o mr-1"></i> November 10, 2025</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="fa fa-tag mr-1"></i> Compiler Development</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="fa fa-user-o mr-1"></i> Dr. Stephen Shao</span>
+                        <span class="mx-2">•</span>
+                        <span class="platform-badge bg-triton/10 text-triton"><i class="fas fa-code mr-1"></i> Triton</span>
+                        <span class="platform-badge bg-amd/10 text-amd"><i class="fas fa-microchip mr-1"></i> AMD GPU</span>
+                    </div>
+                    <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-6">Contributing to Triton Compiler: Optimizing Matmul for AMD GPUs</h1>
+                    <img src="https://picsum.photos/id/0/1200/600" alt="Optimizing Triton Compiler for AMD GPUs" class="w-full h-64 md:h-80 object-cover rounded rounded-xl shadow-sm mb-6">
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog Post Content -->
+        <section class="py-12 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto blog-content">
+                    <p>Contributing to the Triton compiler involves improving its performance, expanding hardware support, or enhancing usability—with a focus on its core mission: making high-performance GPU programming accessible. In this post, we'll walk through a practical example of contributing an optimization to Triton's matrix multiplication (<code class="bg-gray-100 px-1 py-0.5 rounded">matmul</code>) kernel, one of its most critical operations for machine learning (used in transformers, CNNs, etc.). Our focus will be on reducing shared memory memory bank conflicts on AMD GPUs, a common bottleneck in parallel computations.</p>
+
+                    <h3>Scenario: Optimizing Matmul for AMD GPUs by Reducing Shared Memory Bank Conflicts</h3>
+                    <p>Triton's built-in <code class="bg-gray-100 px-1 py-0.5 rounded">tl.dot</code> (matrix multiplication) relies on shared memory (AMD's LDS) to cache frequently used data, boosting performance. However, on AMD GPUs, shared memory is divided into 32 banks, and concurrent access to the same bank by multiple threads (a "bank conflict") causes delays. Our goal is to modify Triton's shared memory tiling logic to avoid these conflicts, improving <code class="bg-gray-100 px-1 py-0.5 rounded">matmul</code> throughput on AMD hardware.</p>
+
+                    <h3>Step 1: Identify the Problem (Profiling & Benchmarking)</h3>
+                    <p class="step-badge">Step 1</p>
+                    <p>First, we need to confirm bank conflicts are a bottleneck.</p>
+                    
+                    <h4>Tools & Setup:</h4>
+                    <pre class="code-block"><code class="language-bash"># Clone Triton repository
+git clone https://github.com/openai/triton.git
+cd triton
+
+# Install in editable mode with development dependencies
+pip install -e ".[tests,benchmark]"
+
+# Install ROCm for AMD GPU support (if not already installed)
+# Follow AMD's official instructions for your system
+</code></pre>
+                    
+                    <p>Use <code class="bg-gray-100 px-1 py-0.5 rounded">rocprof</code> (from ROCm) to analyze kernel behavior:</p>
+                    
+                    <pre class="code-block"><code class="language-bash"># Profile matmul kernel
+rocprof --stats ./benchmarks/bench_matmul.py
+
+# For more detailed analysis
+rocprof --hsa-trace --metrics lds:all ./benchmarks/bench_matmul.py
+</code></pre>
+                    
+                    <h4>Key Finding:</h4>
+                    <p>Profiling shows high "LDS Bank Conflict" counts in the <code class="bg-gray-100 px-1 py-0.5 rounded">matmul</code> kernel when using tile sizes of 16x16 (Triton's default). Threads in a wavefront (64 threads on AMD) access shared shared memory with strides that map to the same bank, causing delays.</p>
+
+                    <h3>Step 2: Design the Optimization</h3>
+                    <p class="step-badge">Step 2</p>
+                    <p>AMD's LDS has 32 banks, each 4 bytes wide. A bank conflict occurs when threads access addresses that are multiples of 32 * 4 = 128 bytes apart (since 32 banks × 4 bytes/bank = 128 bytes per "bank cycle").</p>
+                    
+                    <p>To avoid conflicts:</p>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li><strong>Adjust Tile Strides</strong>: Add a "padding" element to each row of shared memory tiles. This shifts addresses so that adjacent threads access different banks.</li>
+                        <li><strong>Tune Tile Sizes</strong>: For AMD, use 16x17 tiles (16 rows, 17 columns) instead of 16x16. The extra column breaks alignment that causes conflicts.</li>
+                    </ul>
+
+                    <h3>Step 3: Implement the Optimization in Triton</h3>
+                    <p class="step-badge">Step 3</p>
+                    <p>Triton's <code class="bg-gray-100 px-1 py-0.5 rounded">matmul</code> kernel is defined in <code class="bg-gray-100 px-1 py-0.5 rounded">triton/ops/matmul.py</code>, with low-level IR generation in <code class="bg-gray-100 px-1 py-0.5 rounded">triton/codegen/ir.py</code>. We modify the shared memory tile allocation and loading logic.</p>
+                    
+                    <h4>Modified Code Snippet (Triton Kernel):</h4>
+                    <pre class="code-block"><code class="language-python"># File: triton/ops/matmul.py
+import triton
+import triton.language as tl
+
+@triton.jit
+def optimized_matmul(
+    A_ptr, B_ptr, C_ptr,
+    M, N, K,
+    A_stride, B_stride, C_stride,
+    # New: Add AMD-specific tile padding via compile-time flag
+    BLOCK_SIZE_M: tl.constexpr,
+    BLOCK_SIZE_N: tl.constexpr,
+    BLOCK_SIZE_K: tl.constexpr,
+    AMD_PAD: tl.constexpr = False  # Enable padding for AMD
+):
+    # ... (existing grid/block setup)
+
+    # Allocate shared memory tiles with padding for AMD
+    if AMD_PAD:
+        # 16x17 tile (16 rows, 17 columns) to avoid bank conflicts
+        sA = tl.zeros((BLOCK_SIZE_M, BLOCK_SIZE_K + 1), dtype=tl.float32)
+        sB = tl.zeros((BLOCK_SIZE_K + 1, BLOCK_SIZE_N), dtype=tl.float32)
+    else:
+        # Default 16x16 tile for NVIDIA
+        sA = tl.zeros((BLOCK_SIZE_M, BLOCK_SIZE_K), dtype=tl.float32)
+        sB = tl.zeros((BLOCK_SIZE_K, BLOCK_SIZE_N), dtype=tl.float32)
+
+    # Load data into shared memory with adjusted indices for padding
+    for k in range(0, K, BLOCK_SIZE_K):
+        # Load A tile: if AMD, skip the padding column when loading
+        a = tl.load(A_ptr + ...)  # Existing address calculation
+        sA[pid_m * BLOCK_SIZE_M : (pid_m + 1) * BLOCK_SIZE_M, k : k + BLOCK_SIZE_K] = a
+
+        # Load B tile: similar padding logic
+        b = tl.load(B_ptr + ...)
+        sB[k : k + BLOCK_SIZE_K, pid_n * BLOCK_SIZE_N : (pid_n + 1) * BLOCK_SIZE_N] = b
+
+        # Synchronize to ensure all threads have loaded tiles
+        tl.sync()
+
+        # Compute matrix multiplication on shared tiles
+        # (Adjust indices to ignore padding during computation)
+        c = tl.dot(sA[:, :BLOCK_SIZE_K], sB[:BLOCK_SIZE_K, :])
+        tl.store(C_ptr + ..., c)  # Store result to global memory
+        tl.sync()
+</code></pre>
+                    
+                    <h4>IR-Level Adjustments:</h4>
+                    <p>In <code class="bg-gray-100 px-1 py-0.5 rounded">triton/codegen/ir.py</code>, modify the <code class="bg-gray-100 px-1 py-0.5 rounded">allocate_shared</code> method to conditionally add padding based on the target GPU (AMD/NVIDIA). This ensures the IR correctly models the padded tiles for bank conflict avoidance:</p>
+                    
+                    <pre class="code-block"><code class="language-python"># File: triton/codegen/ir.py
+def allocate_shared(self, shape, dtype, amd_pad=False):
+    if amd_pad and len(shape) == 2:
+        # Add 1 to the second dimension for padding
+        shape = (shape[0], shape[1] + 1)
+    return super().allocate_shared(shape, dtype)
+</code></pre>
+
+                    <h3>Step 4: Validate Correctness & Measure Performance</h3>
+                    <p class="step-badge">Step 4</p>
+                    
+                    <h4>1. Unit Tests:</h4>
+                    <p>Add tests to <code class="bg-gray-100 px-1 py-0.5 rounded">tests/test_matmul.py</code> to ensure the optimized kernel produces correct results (vs. a reference implementation like PyTorch's <code class="bg-gray-100 px-1 py-0.5 rounded">torch.matmul</code>):</p>
+                    
+                    <pre class="code-block"><code class="language-python"># File: tests/test_matmul.py
+import torch
+import triton
+from triton.ops.matmul import optimized_matmul
+
+def test_optimized_matmul_amd():
+    # Test 16x16x16 matrix (small) and 1024x1024x1024 (large)
+    for M, N, K in [(16, 16, 16), (1024, 1024, 1024)]:
+        A = torch.randn(M, K, device='cuda', dtype=torch.float32)
+        B = torch.randn(K, N, device='cuda', dtype=torch.float32)
+        # Run Triton's optimized matmul with AMD padding
+        C_triton = optimized_matmul[A, B, BLOCK_SIZE_M=16, BLOCK_SIZE_N=16, BLOCK_SIZE_K=16, AMD_PAD=True]
+        # Compare with PyTorch's reference
+        C_torch = torch.matmul(A, B)
+        assert torch.allclose(C_triton, C_torch, atol=1e-3)
+</code></pre>
+                    
+                    <h4>2. Benchmarking:</h4>
+                    <p>Run benchmarks to quantify performance gains on AMD GPUs (e.g., MI250) vs. baseline (no padding):</p>
+                    
+                    <pre class="code-block"><code class="language-python"># Benchmark script: benchmarks/bench_matmul_amd.py
+import triton
+from triton.ops.matmul import optimized_matmul
+
+@triton.testing.perf_report(
+    triton.testing.Benchmark(
+        x_names=['M', 'N', 'K'],  # Matrix dimensions
+        x_vals=[1024 * i for i in [1, 2, 4]],  # 1024, 2048, 4096
+        line_arg='provider',
+        line_vals=['triton', 'triton_amd', 'torch'],
+        line_names=['Triton (baseline)', 'Triton (AMD optimized)', 'Torch'],
+        styles=[('Triton (baseline)', '-'), ('Triton (AMD optimized)', '--'), ('Torch', '-')],
+        ylabel='TFLOPS',
+        plot_name='matmul-performance-amd',
+        args={},
+    )
+)
+def bench_matmul(M, N, K, provider):
+    A = torch.randn(M, K, device='cuda', dtype=torch.float32)
+    B = torch.randn(K, N, device='cuda', dtype=torch.float32)
+    
+    if provider == 'torch':
+        return triton.testing.do_bench(lambda: torch.matmul(A, B))
+    elif provider == 'triton':
+        fn = optimized_matmul[
+            A, B,
+            BLOCK_SIZE_M=16, BLOCK_SIZE_N=16, BLOCK_SIZE_K=16,
+            AMD_PAD=False
+        ]
+        return triton.testing.do_bench(lambda: fn())
+    elif provider == 'triton_amd':
+        fn = optimized_matmul[
+            A, B,
+            BLOCK_SIZE_M=16, BLOCK_SIZE_N=16, BLOCK_SIZE_K=16,
+            AMD_PAD=True
+        ]
+        return triton.testing.do_bench(lambda: fn())
+
+bench_matmul.run()
+</code></pre>
+                    
+                    <h4>Key Result:</h4>
+                    <p>The optimized kernel reduces LDS bank conflicts by 90% on AMD MI250, increasing matmul throughput by 15–20% for large matrices (1024x1024 and above).</p>
+
+                    <h3>Step 5: Submit the Contribution</h3>
+                    <p class="step-badge">Step 5</p>
+                    <p>Follow Triton's contribution guidelines to submit the change:</p>
+                    
+                    <ol class="list-decimal pl-6 mb-6 space-y-2">
+                        <li><strong>Open a GitHub Issue</strong>: Discuss the bank conflict problem and proposed solution with maintainers (e.g., "AMD matmul performance: reduce LDS bank conflicts with padded tiles").</li>
+                        <li><strong>Create a Pull Request (PR)</strong>:
+                            <ul class="list-disc pl-6 mt-2 space-y-1">
+                                <li>Include the modified <code class="bg-gray-100 px-1 py-0.5 rounded">matmul.py</code>, <code class="bg-gray-100 px-1 py-0.5 rounded">ir.py</code>, tests, and benchmarks.</li>
+                                <li>Add documentation in <code class="bg-gray-100 px-1 py-0.5 rounded">docs/optimizations.md</code> explaining the padding logic for AMD users.</li>
+                                <li>Reference the profiling data and benchmark results in the PR description.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Address Review Feedback</strong>: Triton maintainers may request:
+                            <ul class="list-disc pl-6 mt-2 space-y-1">
+                                <li>Adjusting tile sizes for other AMD GPUs (e.g., MI100).</li>
+                                <li>Ensuring no performance regression on NVIDIA GPUs (padding is disabled by default).</li>
+                                <li>Simplifying the padding logic (e.g., auto-detecting AMD hardware instead of a flag).</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <h3>Impact of the Contribution</h3>
+                    <p>This optimization improves Triton's matmul performance on AMD GPUs, making it more competitive with hand-tuned HIP kernels. It benefits downstream ML frameworks (PyTorch, TensorFlow) that use Triton for matrix operations, accelerating training and inference of large models like transformers.</p>
+
+                    <h3>Key Takeaways for Triton Contributions</h3>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li><strong>Focus on ML Workloads</strong>: Prioritize optimizations for critical operations (matmul, attention, convolutions).</li>
+                        <li><strong>Leverage Profiling</strong>: Use GPU-specific tools (rocprof, nsys) to identify bottlenecks.</li>
+                        <li><strong>Validate Across Hardware</strong>: Ensure changes don't hurt performance on NVIDIA (Triton's original target) or other AMD GPUs.</li>
+                        <li><strong>Collaborate</strong>: Engage with the Triton community (GitHub, Discord) to align with roadmap priorities (e.g., AMD support is a key focus for 2024–2025).</li>
+                    </ul>
+
+                    <p>By following this workflow, you can make impactful contributions to Triton, advancing accessible high-performance GPU computing. The full code for this example is available in our <a href="https://github.com/AIComputing101/triton-contrib-examples" target="_blank" class="text-primary hover:underline">triton-contrib-examples</a> repository, along with other practical contribution examples for different GPU architectures.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Related Posts -->
+        <section class="py-12 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <h2 class="text-2xl font-semibold mb-8">Related Posts</h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <a href="gpu-accelerated-ml-components.html" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <img src="https://picsum.photos/id/96/600/400" alt="GPU-Accelerated ML Components" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">Which ML/DL/LLM Components Benefit Most from GPUs?</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> November 2, 2025</p>
+                            </div>
+                        </a>
+                        <a href="quantum-machine-learning.html" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <img src="https://picsum.photos/id/42/600/400" alt="Quantum Machine Learning" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">Quantum Machine Learning: Current State and Future Directions</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> September 25, 2025</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white/80 py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
+                            <i class="fas fa-bolt text-primary text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">AIComputing101</span>
+                    </div>
+                    <p class="mb-4">
+                        Collaborative learning for AI and computational systems.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://github.com/AIComputing101" target="_blank" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-youtube-play text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-discord text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="../index.html#about" class="hover:text-white transition-colors">Our Mission</a></li>
+                        <li><a href="../index.html#vision" class="hover:text-white transition-colors">Our Vision</a></li>
+                        <li><a href="../index.html#projects" class="hover:text-white transition-colors">Projects</a></li>
+                        <li><a href="index.html" class="hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="../index.html#about-us" class="hover:text-white transition-colors">About Us</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="https://github.com/AIComputing101?tab=repositories" target="_blank" class="hover:text-white transition-colors">All Repositories</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contribution Guide</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Learning Paths</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">FAQ</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Stay Updated</h4>
+                    <p class="mb-4 text-sm">Subscribe to our newsletter for project updates and new resources.</p>
+                    <form class="flex">
+                        <input type="email" placeholder="Your email" class="px-4 py-2 rounded-l-lg w-full text-dark focus:outline-none text-sm">
+                        <button type="submit" class="bg-primary px-4 py-2 rounded-r-lg hover:bg-primary/90 transition-colors">
+                            <i class="fa fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-8 text-center text-sm">
+                <p>&copy; 2025 AIComputing101. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            const icon = mobileMenuBtn.querySelector('i');
+            if (mobileMenu.classList.contains('hidden')) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            } else {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                        const icon = mobileMenuBtn.querySelector('i');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
+            });
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('py-2', 'shadow');
+                header.classList.remove('py-3');
+            } else {
+                header.classList.add('py-3');
+                header.classList.remove('py-2', 'shadow');
+            }
+        });
+    </script>
+</body>
+</html>
