@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Implementing Distributed Solutions with torchrun on SSH, Slurm, and Kubernetes</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <!-- Add language support -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-yaml.min.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#7B61FF',
+                        ssh: '#17A2B8',
+                        slurm: '#20C997',
+                        kubernetes: '#3498DB',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .blog-content p {
+                @apply mb-6 leading-relaxed;
+            }
+            .blog-content h3 {
+                @apply text-xl font-semibold mt-8 mb-4;
+            }
+            .blog-content h4 {
+                @apply text-lg font-medium mt-6 mb-3;
+            }
+            .blog-content h5 {
+                @apply text-base font-semibold mt-4 mb-2;
+            }
+            /* Code block styles */
+            .code-block {
+                @apply bg-gray-900 text-gray-100 rounded-lg p-4 my-6 overflow-x-auto;
+                font-family: 'Fira Code', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+                line-height: 1.6;
+                font-size: 0.875rem; /* 14px */
+            }
+            /* Inline code styles */
+            .blog-content code:not(.code-block code) {
+                @apply bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-medium;
+                font-family: 'Fira Code', monospace;
+            }
+            .platform-badge {
+                @apply inline-block px-2 py-1 text-xs font-semibold rounded-full mr-2;
+            }
+            .step-badge {
+                @apply inline-block px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full mr-1;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-light text-dark antialiased">
+    <!-- Navigation -->
+    <header class="fixed w-full bg-white/90 backdrop-blur-sm shadow-sm z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="../index.html" class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+                    <i class="fas fa-bolt text-white text-xl"></i>
+                </div>
+                <span class="text-xl font-bold text-primary">AIComputing101</span>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="../index.html#about" class="font-medium hover:text-primary transition-colors">About</a>
+                <a href="../index.html#vision" class="font-medium hover:text-primary transition-colors">Vision</a>
+                <a href="../index.html#projects" class="font-medium hover:text-primary transition-colors">Projects</a>
+                <a href="index.html" class="font-medium text-primary transition-colors">Blog</a>
+                <a href="../index.html#about-us" class="font-medium hover:text-primary transition-colors">About Us</a>
+                <a href="https://github.com/AIComputing101" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                    <i class="fa fa-github"></i> GitHub
+                </a>
+            </nav>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-dark text-2xl">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-3 flex flex-col gap-4">
+                <a href="../index.html#about" class="py-2 font-medium hover:text-primary transition-colors">About</a>
+                <a href="../index.html#vision" class="py-2 font-medium hover:text-primary transition-colors">Vision</a>
+                <a href="../index.html#projects" class="py-2 font-medium hover:text-primary transition-colors">Projects</a>
+                <a href="index.html" class="py-2 font-medium text-primary transition-colors">Blog</a>
+                <a href="../index.html#about-us" class="py-2 font-medium hover:text-primary transition-colors">About Us</a>
+                <a href="https://github.com/AIComputing101" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors w-fit">
+                    <i class="fa fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-24">
+        <!-- Blog Post Header -->
+        <section class="py-12 bg-gradient-to-br from-primary/5 to-secondary/5">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <div class="flex items-center text-sm text-gray-500 mb-4 flex-wrap gap-2">
+                        <span><i class="fa fa-calendar-o mr-1"></i> November 26, 2025</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="fa fa-tag mr-1"></i> Distributed Computing</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="fa fa-user-o mr-1"></i> Dr. Stephen Shao</span>
+                        <span class="mx-2">•</span>
+                        <span class="platform-badge bg-ssh/10 text-ssh"><i class="fas fa-server mr-1"></i> HPC</span>
+                        <span class="platform-badge bg-slurm/10 text-slurm"><i class="fas fa-tasks mr-1"></i> Slurm</span>
+                        <span class="platform-badge bg-kubernetes/10 text-kubernetes"><i class="fas fa-cubes mr-1"></i> Kubernetes</span>
+                    </div>
+                    <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-6">Distributed Solutions with torchrun on SSH, Slurm, and Kubernetes</h1>
+                    <img src="https://picsum.photos/id/180/1200/600" alt="Distributed computing with torchrun" class="w-full h-64 md:h-80 object-cover rounded rounded-xl shadow-sm mb-6">
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog Post Content -->
+        <section class="py-12 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto blog-content">
+                    <p>As machine learning models continue to grow in size and complexity, distributed training has become essential to handle the computational demands. PyTorch's <code class="bg-gray-100 px-1 py-0.5 rounded">torchrun</code> provides a unified way to launch distributed training jobs across different platforms. In this post, we'll explore how to implement distributed solutions using <code class="bg-gray-100 px-1 py-0.5 rounded">torchrun</code> on three common platforms: SSH, Slurm, and Kubernetes. Each platform has its own advantages and use cases, and we'll provide practical examples for each.</p>
+
+                    <h3>1. Distributed Training with torchrun on SSH</h3>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-full bg-ssh flex items-center justify-center">
+                            <i class="fas fa-server text-white"></i>
+                        </div>
+                        <h4 class="text-lg font-medium">SSH-Based Distributed Training</h4>
+                    </div>
+                    
+                    <p>SSH-based distributed training is the most straightforward approach for small clusters where you have direct access to all machines. It's ideal for research environments and small-scale experiments.</p>
+                    
+                    <h4>1.1 Environment Setup</h4>
+                    <p class="step-badge">Step 1</p>
+                    <p>Before starting, ensure the following prerequisites are met:</p>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li>All machines are on the same network</li>
+                        <li>Passwordless SSH access is configured between all nodes</li>
+                        <li>PyTorch (≥1.9) and CUDA are installed on all machines with the same versions</li>
+                        <li>NCCL is installed for GPU communication</li>
+                        <li>Training data is accessible on all nodes (via NFS, shared storage, or copied to each node)</li>
+                    </ul>
+                    
+                    <p>To configure passwordless SSH:</p>
+                    <pre class="code-block"><code class="language-bash"># On the master node, generate SSH key if not exists
+ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+
+# Copy public key to all worker nodes
+ssh-copy-id user@worker1
+ssh-copy-id user@worker2
+# ... repeat for all workers
+</code></pre>
+                    
+                    <h4>1.2 Training Script Preparation</h4>
+                    <p class="step-badge">Step 2</p>
+                    <p>Create a distributed training script that uses PyTorch's DistributedDataParallel (DDP). Here's a minimal example:</p>
+                    
+                    <pre class="code-block"><code class="language-python"># distributed_train.py
+import os
+import torch
+import torch.distributed as dist
+import torch.nn as nn
+import torch.optim as optim
+from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.utils.data import Dataset, DataLoader, DistributedSampler
+
+# Initialize distributed process group
+dist.init_process_group(backend='nccl', init_method='env://')
+local_rank = int(os.environ.get('LOCAL_RANK', 0))
+rank = int(os.environ.get('RANK', 0))
+world_size = int(os.environ.get('WORLD_SIZE', 1))
+
+# Set device
+torch.cuda.set_device(local_rank)
+device = torch.device(f"cuda:{local_rank}")
+
+# Dummy dataset and model
+class DummyDataset(Dataset):
+    def __len__(self):
+        return 1000
+    def __getitem__(self, idx):
+        return torch.randn(3, 224, 224), torch.randint(0, 1000, (1,)).item()
+
+model = nn.Sequential(
+    nn.Conv2d(3, 64, kernel_size=3),
+    nn.ReLU(),
+    nn.AdaptiveAvgPool2d((1, 1)),
+    nn.Flatten(),
+    nn.Linear(64, 1000)
+).to(device)
+
+# Wrap model with DDP
+model = DDP(model, device_ids=[local_rank])
+
+# Create distributed sampler and dataloader
+dataset = DummyDataset()
+sampler = DistributedSampler(dataset, num_replicas=world_size, rank=rank)
+dataloader = DataLoader(dataset, batch_size=32, sampler=sampler)
+
+# Optimizer and loss
+optimizer = optim.SGD(model.parameters.parameters(), lr=0.001)
+criterion = nn.CrossEntropyLoss()
+
+# Training loop
+for epoch in range(10):
+    sampler.set_epoch(epoch)  # Important for shuffling
+    model.train()
+    total_loss = 0.0
+    
+    for inputs, labels in dataloader:
+        inputs, labels = inputs.to(device), labels.to(device)
+        
+        optimizer.zero_grad()
+        outputs = model(inputs)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+        
+        total_loss += loss.item()
+    
+    # Print progress from rank 0 only
+    if rank == 0:
+        print(f"Epoch {epoch+1}, Loss: {total_loss/len(dataloader):.4f}")
+
+# Clean up
+dist.destroy_process_group()
+</code></pre>
+                    
+                    <h4>1.3 Launching the Training Job</h4>
+                    <p class="step-badge">Step 3</p>
+                    <p>Create a hostfile containing the list of nodes in your cluster:</p>
+                    
+                    <pre class="code-block"><code class="language-bash"># hostfile
+192.168.1.100 slots=4  # Master node with 4 GPUs
+192.168.1.101 slots=4  # Worker node 1 with 4 GPUs
+192.168.1.102 slots=4  # Worker node 2 with 4 GPUs
+</code></pre>
+                    
+                    <p>Create a launch script to start the training on all nodes:</p>
+                    
+                    <pre class="code-block"><code class="language-bash"># launch.sh
+#!/bin/bash
+MASTER_ADDR=192.168.1.100
+MASTER_PORT=29500
+NUM_NODES=3
+NUM_GPUS_PER_NODE=4
+WORLD_SIZE=$((NUM_NODES * NUM_GPUS_PER_NODE))
+
+# Function to run on each node
+run_on_node() {
+    local node=$1
+    ssh $node "cd /path/to/your/project && \
+                python -m torch.distributed.run \
+                --nnodes=$NUM_NODES \
+                --nproc_per_node=$NUM_GPUS_PER_NODE \
+                --node_rank=$2 \
+                --master_addr=$MASTER_ADDR \
+                --master_port=$MASTER_PORT \
+                distributed_train.py"
+}
+
+# Launch master node
+run_on_node $MASTER_ADDR 0 &
+
+# Launch worker nodes
+run_on_node 192.168.1.101 1 &
+run_on_node 192.168.1.102 2 &
+
+# Wait for all processes to finish
+wait
+</code></pre>
+                    
+                    <p>Make the script executable and run it:</p>
+                    
+                    <pre class="code-block"><code class="language-bash">chmod +x launch.sh
+./launch.sh
+</code></pre>
+                    
+                    <h4>1.4 Key Considerations for SSH-Based Training</h4>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li><strong>Network Configuration</strong>: Ensure the master port (default 29500) is open on all nodes</li>
+                        <li><strong>Data Synchronization</strong>: Use <code class="bg-gray-100 px-1 py-0.5 rounded">DistributedSampler</code> to ensure each node gets a unique subset of data</li>
+                        <li><strong>Error Handling</strong>: SSH-based training lacks automatic fault tolerance. If one node fails, the entire job fails</li>
+                        <li><strong>Scalability</strong>: SSH-based training is suitable for small clusters (typically ≤10 nodes). For larger clusters, consider Slurm or Kubernetes</li>
+                    </ul>
+
+                    <h3>2. Distributed Training with torchrun on Slurm</h3>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-full bg-slurm flex items-center justify-center">
+                            <i class="fas fa-tasks text-white"></i>
+                        </div>
+                        <h4 class="text-lg font-medium">Slurm Workload Manager</h4>
+                    </div>
+                    
+                    <p>Slurm is a popular workload manager for large-scale clusters, commonly used in academic and research institutions. It provides job scheduling, resource management, and fault tolerance capabilities.</p>
+                    
+                    <h4>2.1 Environment Setup</h4>
+                    <p class="step-badge">Step 1</p>
+                    <p>Ensure your Slurm cluster has the following configured:</p>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li>Slurm controller and compute nodes are properly configured</li>
+                        <li>PyTorch and CUDA are installed on all compute nodes (use modules or containerization)</li>
+                        <li>Shared file system (e.g., Lustre, NFS) accessible to all nodes</li>
+                        <li>NCCL is configured for GPU communication</li>
+                    </ul>
+                    
+                    <p>To load required modules (if using environment modules):</p>
+                    <pre class="code-block"><code class="language-bash">module load anaconda3
+module load cuda/12.1
+module load nccl/2.18.3
+</code></pre>
+                    
+                    <h4>2.2 Training Script Preparation</h4>
+                    <p class="step-badge">Step 2</p>
+                    <p>Use the same training script from the SSH section (<code class="bg-gray-100 px-1 py-0.5 rounded">distributed_train.py</code>). The script doesn't need modification since <code class="bg-gray-100 px-1 py-0.5 rounded">torchrun</code> will automatically handle the distributed setup based on Slurm environment variables.</p>
+                    
+                    <h4>2.3 Creating a Slurm Job Script</h4>
+                    <p class="step-badge">Step 3</p>
+                    <p>Create a Slurm submission script (<code class="bg-gray-100 px-1 py-0.5 rounded">slurm_job.sh</code>):</p>
+                    
+                    <pre class="code-block"><code class="language-bash">#!/bin/bash
+#SBATCH --job-name=distributed_training
+#SBATCH --nodes=3
+#SBATCH --ntasks-per-node=4
+#SBATCH --cpus-per-task=12
+#SBATCH --gres=gpu:4
+#SBATCH --time=02:00:00
+#SBATCH --partition=gpu
+#SBATCH --output=slurm_output_%j.log
+
+# Load required modules
+module purge
+module load anaconda3
+module load cuda/12.1
+module load nccl/2.18.3
+
+# Activate conda environment
+source activate pytorch_env
+
+# Set environment variables
+export MASTER_ADDR=$(scontrol show hostname ${SLURM_JOB_NODELIST} | head -n 1)
+export MASTER_PORT=29500
+export WORLD_SIZE=$((SLURM_NNODES * SLURM_NTASKS_PER_NODE))
+export OMP_NUM_THREADS=12
+export NCCL_DEBUG=INFO
+export NCCL_SOCKET_IFNAME=eth0  # Adjust based on your network interface
+export FI_PROVIDER=efa  # For AWS clusters with EFA
+
+# Print job information
+echo "Job ID: $SLURM_JOB_ID"
+echo "Master Address: $MASTER_ADDR"
+echo "Master Port: $MASTER_PORT"
+echo "World Size: $WORLD_SIZE"
+echo "Nodes: $SLURM_JOB_NODELIST"
+
+# Launch distributed training
+srun torchrun \
+    --nnodes=$SLURM_NNODES \
+    --nproc_per_node=$SLURM_NTASKS_PER_NODE \
+    --rdzv_id=$SLURM_JOB_ID \
+    --rdzv_backend=c10d \
+    --rdzv_endpoint=$MASTER_ADDR:$MASTER_PORT \
+    distributed_train.py
+</code></pre>
+                    
+                    <h4>2.4 Submitting the Job to Slurm</h4>
+                    <p class="step-badge">Step 4</p>
+                    <p>Submit the job using the <code class="bg-gray-100 px-1 py-0.5 rounded">sbatch</code> command:</p>
+                    
+                    <pre class="code-block"><code class="language-bash">sbatch slurm_job.sh
+</code></pre>
+                    
+                    <p>Monitor the job status:</p>
+                    <pre class="code-block"><code class="language-bash"># Check job status
+squeue -u $USER
+
+# Check job output
+tail -f slurm_output_<JOB_ID>.log
+
+# Cancel a job
+scancel <JOB_ID>
+</code></pre>
+                    
+                    <h4>2.5 Advanced Slurm Configuration</h4>
+                    <p>For better performance and resource management, consider these advanced configurations:</p>
+                    
+                    <pre class="code-block"><code class="language-bash"># Example with GPU binding and CPU affinity
+#!/bin/bash
+#SBATCH --job-name=distributed_training
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=8
+#SBATCH --cpus-per-task=7
+#SBATCH --gres=gpu:8
+#SBATCH --time=02:00:00
+#SBATCH --partition=gpu
+#SBATCH --output=slurm_output_%j.log
+
+# Load modules and activate environment...
+
+# Advanced NCCL settings for performance
+export NCCL_DEBUG=INFO
+export NCCL_IB_DISABLE=0
+export NCCL_IB_HCA=mlx5_0:1
+export NCCL_IB_GID_INDEX=3
+export NCCL_SOCKET_IFNAME=ib0
+export NCCL_BUFFSIZE=2097152
+export NCCL_NET_GDR_LEVEL=2
+
+# Launch with GPU binding
+srun --cpu-bind=none torchrun \
+    --nnodes=$SLURM_NNODES \
+    --nproc_per_node=$SLURM_NTASKS_PER_NODE \
+    --rdzv_id=$SLURM_JOB_ID \
+    --rdzv_backend=c10d \
+    --rdzv_endpoint=$MASTER_ADDR:$MASTER_PORT \
+    distributed_train.py
+</code></pre>
+                    
+                    <h4>2.6 Troubleshooting Common Slurm Issues</h4>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li><strong>GPU Assignment Conflicts</strong>: Ensure each process gets a unique GPU by using <code class="bg-gray-100 px-1 py-0.5 rounded">torch.cuda.set_device(local_rank)</code></li>
+                        <li><strong>Network Issues</strong>: Check NCCL debug logs for network problems and ensure the correct network interface is used</li>
+                        <li><strong>Resource Over-subscription</strong>: Match <code class="bg-gray-100 px-1 py-0.5 rounded">--cpus-per-task</code> with <code class="bg-gray-100 px-1 py-0.5 rounded">OMP_NUM_THREADS</code> to avoid CPU contention</li>
+                        <li><strong>Job Timeouts</strong>: Adjust <code class="bg-gray-100 px-1 py-0.5 rounded">--time</code> parameter based on your training requirements</li>
+                    </ul>
+
+                    <h3>3. Distributed Training with torchrun on Kubernetes</h3>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-full bg-kubernetes flex items-center justify-center">
+                            <i class="fas fa-cubes text-white"></i>
+                        </div>
+                        <h4 class="text-lg font-medium">Kubernetes Deployment</h4>
+                    </div>
+                    
+                    <p>Kubernetes provides a scalable and resilient platform for running distributed training jobs. It's ideal for cloud environments and production systems where you need dynamic resource allocation and fault tolerance.</p>
+                    
+                    <h4>3.1 Environment Setup</h4>
+                    <p class="step-badge">Step 1</p>
+                    <p>Before deploying to Kubernetes, ensure you have:</p>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li>A running Kubernetes cluster with GPU support</li>
+                        <li>Kubectl configured to access the cluster</li>
+                        <li>Training Operator installed (for PyTorchJob custom resource)</li>
+                        <li>Container registry for storing your training image</li>
+                        <li>Persistent storage for data and checkpoints</li>
+                    </ul>
+                    
+                    <p>Install the Training Operator (Kubeflow):</p>
+                    <pre class="code-block"><code class="language-bash"># Install Training Operator
+kubectl apply -k "github.com/kubeflow/training-operator/manifests/overlays/standalone?ref=v1.7.0"
+
+# Verify installation
+kubectl get pods -n kubeflow
+</code></pre>
+                    
+                    <h4>3.2 Creating a Docker Image</h4>
+                    <p class="step-badge">Step 2</p>
+                    <p>Create a Dockerfile for your training environment:</p>
+                    
+                    <pre class="code-block"><code class="language-dockerfile"># Dockerfile
+FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Install dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-pip \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install PyTorch and other dependencies
+RUN pip3 install --no-cache-dir \
+    torch==2.1.0 \
+    torchvision==0.16.0 \
+    torchaudio==2.1.0 \
+    --index-url https://download.pytorch.org/whl/cu121
+
+# Set working directory
+WORKDIR /app
+
+# Copy training script
+COPY distributed_train.py .
+
+# Command to run the script
+CMD ["python", "distributed_train.py"]
+</code></pre>
+                    
+                    <p>Build and push the image to your container registry:</p>
+                    <pre class="code-block"><code class="language-bash"># Build the image
+docker build -t your-registry/training-image:latest .
+
+# Push to registry
+docker push your-registry/training-image:latest
+</code></pre>
+                    
+                    <h4>3.3 Creating a PyTorchJob YAML</h4>
+                    <p class="step-badge">Step 3</p>
+                    <p>Create a Kubernetes manifest for your distributed training job:</p>
+                    
+                    <pre class="code-block"><code class="language-yaml">apiVersion: "kubeflow.org/v1"
+kind: PyTorchJob
+metadata:
+  name: distributed-training-job
+  namespace: kubeflow
+spec:
+  cleanPodPolicy: OnCompletion
+  pytorchReplicaSpecs:
+    Master:
+      replicas: 1
+      restartPolicy: OnFailure
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
+        spec:
+          containers:
+          - name: pytorch
+            image: your-registry/training-image:latest
+            resources:
+              limits:
+                nvidia.com/gpu: 1
+                cpu: "4"
+                memory: "16Gi"
+              requests:
+                nvidia.com/gpu: 1
+                cpu: "4"
+                memory: "16Gi"
+            command:
+            - "torchrun"
+            - "--nnodes=3"
+            - "--nproc_per_node=1"
+            - "--rdzv_backend=c10d"
+            - "--rdzv_endpoint=$(MASTER_ADDR):29500"
+            - "distributed_train.py"
+            env:
+            - name: MASTER_ADDR
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: WORLD_SIZE
+              value: "3"
+    Worker:
+      replicas: 2
+      restartPolicy: OnFailure
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
+        spec:
+          containers:
+          - name: pytorch
+            image: your-registry/training-image:latest
+            resources:
+              limits:
+                nvidia.com/gpu: 1
+                cpu: "4"
+                memory: "16Gi"
+              requests:
+                nvidia.com/gpu: 1
+                cpu: "4"
+                memory: "16Gi"
+            command:
+            - "torchrun"
+            - "--nnodes=3"
+            - "--nproc_per_node=1"
+            - "--rdzv_backend=c10d"
+            - "--rdzv_endpoint=$(MASTER_ADDR):29500"
+            - "distributed_train.py"
+            env:
+            - name: MASTER_ADDR
+              value: "distributed-training-job-master-0"
+            - name: WORLD_SIZE
+              value: "3"
+</code></pre>
+                    
+                    <h4>3.4 Deploying the PyTorchJob</h4>
+                    <p class="step-badge">Step 4</p>
+                    <p>Apply the manifest to create the PyTorchJob:</p>
+                    
+                    <pre class="code-block"><code class="language-bash"># Create the PyTorchJob
+kubectl apply -f pytorchjob.yaml
+
+# Check the status of the job
+kubectl get pytorchjobs -n kubeflow
+
+# Check the pods created by the job
+kubectl get pods -n kubeflow -l training.kubeflow.org/job-name=distributed-training-job
+</code></pre>
+                    
+                    <h4>3.5 Monitoring the Training Job</h4>
+                    <p>Monitor the progress of your training job:</p>
+                    
+                    <pre class="code-block"><code class="language-bash"># View logs from the master pod
+kubectl logs -f distributed-training-job-master-0 -n kubeflow
+
+# View logs from a worker pod
+kubectl logs -f distributed-training-job-worker-0 -n kubeflow
+
+# Describe the PyTorchJob to check status
+kubectl describe pytorchjob distributed-training-job -n kubeflow
+</code></pre>
+                    
+                    <h4>3.6 Advanced Kubernetes Configuration</h4>
+                    <p>For production-grade deployments, consider these advanced configurations:</p>
+                    
+                    <pre class="code-block"><code class="language-yaml"># Advanced PyTorchJob with persistent storage and metrics
+apiVersion: "kubeflow.org/v1"
+kind: PyTorchJob
+metadata:
+  name: distributed-training-job
+  namespace: kubeflow
+spec:
+  cleanPodPolicy: OnCompletion
+  pytorchReplicaSpecs:
+    Master:
+      replicas: 1
+      restartPolicy: OnFailure
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
+            prometheus.io/scrape: "true"
+            prometheus.io/path: "/metrics"
+            prometheus.io/port: "8080"
+        spec:
+          containers:
+          - name: pytorch
+            image: your-registry/training-image:latest
+            resources:
+              limits:
+                nvidia.com/gpu: 1
+                cpu: "4"
+                memory: "16Gi"
+              requests:
+                nvidia.com/gpu: 1
+                cpu: "4"
+                memory: "16Gi"
+            command:
+            - "torchrun"
+            - "--nnodes=3"
+            - "--nproc_per_node=1"
+            - "--rdzv_backend=c10d"
+            - "--rdzv_endpoint=$(MASTER_ADDR):29500"
+            - "distributed_train.py"
+            env:
+            - name: MASTER_ADDR
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: WORLD_SIZE
+              value: "3"
+            volumeMounts:
+            - name: data-volume
+              mountPath: /data
+            - name: checkpoint-volume
+              mountPath: /checkpoints
+          volumes:
+          - name: data-volume
+            persistentVolumeClaim:
+              claimName: data-pvc
+          - name: checkpoint-volume
+            persistentVolumeClaim:
+              claimName: checkpoint-pvc
+    Worker:
+      replicas: 2
+      restartPolicy: OnFailure
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
+        spec:
+          containers:
+          - name: pytorch
+            image: your-registry/training-image:latest
+            resources:
+              limits:
+                nvidia.com/gpu: 1
+                cpu: "4"
+                memory: "16Gi"
+              requests:
+                nvidia.com/gpu: 1
+                cpu: "4"
+                memory: "16Gi"
+            command:
+            - "torchrun"
+            - "--nnodes=3"
+            - "--nproc_per_node=1"
+            - "--rdzv_backend=c10d"
+            - "--rdzv_endpoint=$(MASTER_ADDR):29500"
+            - "distributed_train.py"
+            env:
+            - name: MASTER_ADDR
+              value: "distributed-training-job-master-0"
+            - name: WORLD_SIZE
+              value: "3"
+            volumeMounts:
+            - name: data-volume
+              mountPath: /data
+          volumes:
+          - name: data-volume
+            persistentVolumeClaim:
+              claimName: data-pvc
+</code></pre>
+                    
+                    <h4>3.7 Persistent Storage Setup</h4>
+                    <p>Create persistent volume claims for data and checkpoints:</p>
+                    
+                    <pre class="code-block"><code class="language-yaml"># data-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-pvc
+  namespace: kubeflow
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: "nfs-storage"  # Adjust based on your storage class
+
+# checkpoint-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: checkpoint-pvc
+  namespace: kubeflow
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: "standard"  # Adjust based on your storage class
+</code></pre>
+                    
+                    <p>Apply the PVC manifests:</p>
+                    <pre class="code-block"><code class="language-bash">kubectl apply -f data-pvc.yaml
+kubectl apply -f checkpoint-pvc.yaml
+</code></pre>
+
+                    <h3>4. Platform Comparison and Best Practices</h3>
+                    
+                    <h4>4.1 Platform Comparison</h4>
+                    <div class="overflow-x-auto mb-6">
+                        <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="py-3 px-4 text-left">Feature</th>
+                                    <th class="py-3 px-4 text-left">SSH</th>
+                                    <th class="py-3 px-4 text-left">Slurm</th>
+                                    <th class="py-3 px-4 text-left">Kubernetes</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr>
+                                    <td class="py-3 px-4 font-medium">Ease of Setup</td>
+                                    <td class="py-3 px-4">★★★★★</td>
+                                    <td class="py-3 px-4">★★★☆☆</td>
+                                    <td class="py-3 px-4">★★☆☆☆</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 font-medium">Scalability</td>
+                                    <td class="py-3 px-4">★★☆☆☆</td>
+                                    <td class="py-3 px-4">★★★★★</td>
+                                    <td class="py-3 px-4">★★★★★</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 font-medium">Fault Tolerance</td>
+                                    <td class="py-3 px-4">★☆☆☆☆</td>
+                                    <td class="py-3 px-4">★★★☆☆</td>
+                                    <td class="py-3 px-4">★★★★★</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 font-medium">Resource Management</td>
+                                    <td class="py-3 px-4">★☆☆☆☆</td>
+                                    <td class="py-3 px-4">★★★★★</td>
+                                    <td class="py-3 px-4">★★★★★</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 font-medium">Cloud Integration</td>
+                                    <td class="py-3 px-4">★★☆☆☆</td>
+                                    <td class="py-3 px-4">★★★☆☆</td>
+                                    <td class="py-3 px-4">★★★★★</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 font-medium">Use Case</td>
+                                    <td class="py-3 px-4">Small clusters, research</td>
+                                    <td class="py-3 px-4">Large HPC clusters</td>
+                                    <td class="py-3 px-4">Cloud, production</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <h4>4.2 Best Practices for Distributed Training</h4>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li><strong>Use DistributedSampler</strong>: Always use <code class="bg-gray-100 px-1 py-0.5 rounded">DistributedSampler</code> to ensure each node gets a unique subset of data</li>
+                        <li><strong>Set Sampler Epoch</strong>: Call <code class="bg-gray-100 px-1 py-0.5 rounded">sampler.set_epoch(epoch)</code> at the beginning of each epoch to ensure proper shuffling</li>
+                        <li><strong>Optimize Data Loading</strong>: Use prefetching, pin memory, and fast data storage to avoid data loading bottlenecks</li>
+                        <li><strong>Configure NCCL</strong>: Tune NCCL parameters for your network environment to maximize communication performance</li>
+                        <li><strong>Monitor Training</strong>: Track metrics like loss, accuracy, and GPU utilization across all nodes</li>
+                        <li><strong>Checkpointing</strong>: Implement regular checkpointing to save progress and enable resuming training</li>
+                        <li><strong>Error Handling</strong>: Add proper error handling and logging to diagnose issues in distributed environments</li>
+                    </ul>
+                    
+                    <h4>4.3 Performance Optimization Tips</h4>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li><strong>Mixed Precision Training</strong>: Use mixed precision (FP16/FP8) to reduce memory usage and increase throughput</li>
+                        <li><strong>Gradient Accumulation</strong>: Accumulate gradients over multiple iterations to simulate larger batch sizes</li>
+                        <li><strong>Activation Checkpointing</strong>: Use activation checkpointing to reduce memory usage for large models</li>
+                        <li><strong>ZeRO Optimization</strong>: For extremely large models, consider using ZeRO (Zero Redundancy Optimizer) to shard model parameters</li>
+                        <li><strong>Network Optimization</strong>: Use high-speed networks (InfiniBand, EFA) and configure NCCL for optimal performance</li>
+                    </ul>
+                    
+                    <h3>5. Conclusion</h3>
+                    <p>Distributed training with <code class="bg-gray-100 px-1 py-0.5 rounded">torchrun</code> provides a flexible way to scale your machine learning workloads across different platforms. Each platform—SSH, Slurm, and Kubernetes—has its own strengths and is suited for different use cases:</p>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li><strong>SSH</strong> is ideal for small clusters and research environments where you need quick setup and direct access</li>
+                        <li><strong>Slurm</strong> excels in large HPC clusters with many users and strict resource management requirements</li>
+                        <li><strong>Kubernetes</strong> offers the most scalability and fault tolerance, making it perfect for cloud deployments and production systems</li>
+                    </ul>
+                    <p>By understanding the strengths and limitations of each platform, you can choose the right solution for your specific needs and scale your machine learning workloads effectively. The examples provided in this post should give you a solid foundation for implementing distributed training with <code class="bg-gray-100 px-1 py-0.5 rounded">torchrun</code> on any of these platforms.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Related Posts -->
+        <section class="py-12 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <h2 class="text-2xl font-semibold mb-8">Related Posts</h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <a href="triton-contribution-post/index.html" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <img src="https://picsum.photos/id/0/600/400" alt="Contributing to Triton Compiler" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">Contributing to Triton Compiler: Optimizing Matmul for AMD GPUs</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> November 10, 2025</p>
+                            </div>
+                        </a>
+                        <a href="gpu-accelerated-ml-components.html" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <img src="https://picsum.photos/id/96/600/400" alt="GPU-Accelerated ML Components" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">Which ML/DL/LLM Components Benefit Most from GPUs?</h3>
+                                <p class="text-sm text-gray-500"><i class="fa fa-calendar-o mr-1"></i> November 2, 2025</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white/80 py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
+                            <i class="fas fa-bolt text-primary text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">AIComputing101</span>
+                    </div>
+                    <p class="mb-4">
+                        Collaborative learning for AI and computational systems.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://github.com/AIComputing101" target="_blank" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-youtube-play text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-white transition-colors">
+                            <i class="fa fa-discord text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="../index.html#about" class="hover:text-white transition-colors">Our Mission</a></li>
+                        <li><a href="../index.html#vision" class="hover:text-white transition-colors">Our Vision</a></li>
+                        <li><a href="../index.html#projects" class="hover:text-white transition-colors">Projects</a></li>
+                        <li><a href="index.html" class="hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="../index.html#about-us" class="hover:text-white transition-colors">About Us</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="https://github.com/AIComputing101?tab=repositories" target="_blank" class="hover:text-white transition-colors">All Repositories</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contribution Guide</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Learning Paths</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">FAQ</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Stay Updated</h4>
+                    <p class="mb-4 text-sm">Subscribe to our newsletter for project updates and new resources.</p>
+                    <form class="flex">
+                        <input type="email" placeholder="Your email" class="px-4 py-2 rounded-l-lg w-full text-dark focus:outline-none text-sm">
+                        <button type="submit" class="bg-primary px-4 py-2 rounded-r-lg hover:bg-primary/90 transition-colors">
+                            <i class="fa fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-8 text-center text-sm">
+                <p>&copy; 2025 AIComputing101. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            const icon = mobileMenuBtn.querySelector('i');
+            if (mobileMenu.classList.contains('hidden')) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            } else {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                        const icon = mobileMenuBtn.querySelector('i');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
+            });
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('py-2', 'shadow');
+                header.classList.remove('py-3');
+            } else {
+                header.classList.add('py-3');
+                header.classList.remove('py-2', 'shadow');
+            }
+        });
+    </script>
+</body>
+</html>

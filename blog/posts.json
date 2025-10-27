@@ -1,6 +1,16 @@
 {
   "posts": [
     {
+      "id": "20251026-distributed-solutions-with-torchrun-on-ssh-slurm-and-kubernetes",
+      "title": "Distributed Solutions with torchrun on SSH, Slurm, and Kubernetes",
+      "description": "As machine learning models continue to grow in size and complexity, distributed training has become essential to handle the computational demands. PyTorch's torchrun provides a powerful solution.",
+      "date": "2025-10-26",
+      "dateDisplay": "Oct 26, 2025",
+      "tags": ["Distributed Computing", "Machine Learning"],
+      "image": "https://picsum.photos/id/87/600/400",
+      "url": "20251026-distributed-solutions-with-torchrun-on-ssh-slurm-and-kubernetes.html"
+    },
+    {
       "id": "20251026-how-to-contribute-triton",
       "title": "Contributing to Triton Compiler: Optimizing Matmul for AMD GPUs",
       "description": "Explains the process of optimizing the Triton compiler for AMD GPUs, focusing on the challenges and solutions in adapting ML workloads.",

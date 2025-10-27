@@ -74,7 +74,12 @@ echo "$JSON_ENTRY"
 echo ""
 
 # Create a basic HTML template
-HTML_FILE="blog/${FULL_FILENAME}.html"
+# Detect if we're already in the blog directory
+if [ "$(basename "$PWD")" = "blog" ]; then
+    HTML_FILE="${FULL_FILENAME}.html"
+else
+    HTML_FILE="blog/${FULL_FILENAME}.html"
+fi
 
 if [ -f "$HTML_FILE" ]; then
     echo -e "${YELLOW}Warning: $HTML_FILE already exists. Skipping HTML creation.${NC}"
