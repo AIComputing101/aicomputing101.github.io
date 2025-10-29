@@ -485,83 +485,172 @@
             </div>
         </section>
 
-        <!-- Team Section -->
+        <!-- Challenges Section -->
         <section id="team" class="py-20 bg-white">
             <div class="container mx-auto px-4">
                 <div class="max-w-3xl mx-auto text-center mb-16">
-                    <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">Our Team & Community</h2>
+                    <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">Challenges in AI Computing</h2>
                     <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
                     <p class="text-gray-600 text-lg">
-                        A global community of AI experts, developers, educators, and innovators.
+                        Understanding the critical challenges shaping the future of AI computing and industry innovation.
                     </p>
                 </div>
 
-                <div class="max-w-5xl mx-auto">
-                    <div class="grid md:grid-cols-3 gap-8 mb-12">
-                        <div class="flex flex-col items-center text-center">
-                            <div class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                                <i class="fas fa-users text-primary text-4xl"></i>
+                <div class="max-w-6xl mx-auto">
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Challenge 1 -->
+                        <div class="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl p-8 shadow-sm card-hover border-l-4 border-red-500">
+                            <div class="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-6">
+                                <i class="fas fa-fire text-red-600 text-3xl"></i>
                             </div>
-                            <h3 class="text-xl font-semibold mb-2">Collaborative Structure</h3>
-                            <p class="text-gray-600 text-sm">
-                                A diverse team of contributors from academia, industry leaders, and self-taught innovators working together.
+                            <h3 class="text-xl font-bold mb-3">Computing Power & Energy</h3>
+                            <p class="text-gray-700 mb-4">
+                                Training large models like GPT-4 requires massive compute infrastructure. Data centers consume 1-2% of global electricity, with AI workloads demanding exponentially more power.
                             </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-red-100 text-red-800 text-xs rounded-full">Infrastructure</span>
+                                <span class="px-3 py-1 bg-red-100 text-red-800 text-xs rounded-full">Sustainability</span>
+                            </div>
                         </div>
 
-                        <div class="flex flex-col items-center text-center">
-                            <div class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                                <i class="fas fa-lightbulb text-primary text-4xl"></i>
+                        <!-- Challenge 2 -->
+                        <div class="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl p-8 shadow-sm card-hover border-l-4 border-yellow-500">
+                            <div class="w-16 h-16 rounded-full bg-yellow-500/10 flex items-center justify-center mb-6">
+                                <i class="fas fa-microchip text-yellow-600 text-3xl"></i>
                             </div>
-                            <h3 class="text-xl font-semibold mb-2">Core Values</h3>
-                            <p class="text-gray-600 text-sm">
-                                Excellence, innovation, and accessibility drive everything we do — from education to enterprise solutions.
+                            <h3 class="text-xl font-bold mb-3">Hardware Limitations</h3>
+                            <p class="text-gray-700 mb-4">
+                                GPU shortages, Moore's Law slowdown, and memory bandwidth bottlenecks limit scaling. NVIDIA H100s cost $30K+ each, creating accessibility barriers.
                             </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">Hardware</span>
+                                <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">Cost</span>
+                            </div>
                         </div>
 
-                        <div class="flex flex-col items-center text-center">
-                            <div class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                                <i class="fas fa-code-branch text-primary text-4xl"></i>
+                        <!-- Challenge 3 -->
+                        <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 shadow-sm card-hover border-l-4 border-purple-500">
+                            <div class="w-16 h-16 rounded-full bg-purple-500/10 flex items-center justify-center mb-6">
+                                <i class="fas fa-database text-purple-600 text-3xl"></i>
                             </div>
-                            <h3 class="text-xl font-semibold mb-2">Open Collaboration</h3>
-                            <p class="text-gray-600 text-sm">
-                                Join our open-source community to contribute, learn, and help shape the future of AI technology.
+                            <h3 class="text-xl font-bold mb-3">Data Quality & Scale</h3>
+                            <p class="text-gray-700 mb-4">
+                                LLMs require trillions of tokens. Data scarcity for specialized domains, privacy concerns, and bias in training data pose significant challenges for model development.
                             </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">Data</span>
+                                <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">Ethics</span>
+                            </div>
+                        </div>
+
+                        <!-- Challenge 4 -->
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 shadow-sm card-hover border-l-4 border-blue-500">
+                            <div class="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center mb-6">
+                                <i class="fas fa-network-wired text-blue-600 text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">Distributed Training Complexity</h3>
+                            <p class="text-gray-700 mb-4">
+                                Coordinating thousands of GPUs across clusters requires sophisticated orchestration. Network latency, fault tolerance, and synchronization remain critical bottlenecks.
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">Distributed Systems</span>
+                                <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">Scaling</span>
+                            </div>
+                        </div>
+
+                        <!-- Challenge 5 -->
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 shadow-sm card-hover border-l-4 border-green-500">
+                            <div class="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mb-6">
+                                <i class="fas fa-coins text-green-600 text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">Cost of Innovation</h3>
+                            <p class="text-gray-700 mb-4">
+                                Training GPT-4 cost an estimated $100M+. Inference costs billions annually. Only well-funded organizations can afford cutting-edge AI development at scale.
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-green-100 text-green-800 text-xs rounded-full">Economics</span>
+                                <span class="px-3 py-1 bg-green-100 text-green-800 text-xs rounded-full">Accessibility</span>
+                            </div>
+                        </div>
+
+                        <!-- Challenge 6 -->
+                        <div class="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl p-8 shadow-sm card-hover border-l-4 border-cyan-500">
+                            <div class="w-16 h-16 rounded-full bg-cyan-500/10 flex items-center justify-center mb-6">
+                                <i class="fas fa-shield-alt text-cyan-600 text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">Model Safety & Alignment</h3>
+                            <p class="text-gray-700 mb-4">
+                                Ensuring AI systems behave safely and align with human values remains unsolved. Hallucinations, adversarial attacks, and misuse pose serious risks.
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-cyan-100 text-cyan-800 text-xs rounded-full">Safety</span>
+                                <span class="px-3 py-1 bg-cyan-100 text-cyan-800 text-xs rounded-full">Alignment</span>
+                            </div>
+                        </div>
+
+                        <!-- Challenge 7 -->
+                        <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-8 shadow-sm card-hover border-l-4 border-indigo-500">
+                            <div class="w-16 h-16 rounded-full bg-indigo-500/10 flex items-center justify-center mb-6">
+                                <i class="fas fa-chart-line text-indigo-600 text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">Inference Optimization</h3>
+                            <p class="text-gray-700 mb-4">
+                                Serving billions of requests daily requires extreme optimization. Latency, throughput, and cost efficiency are critical for production deployments at scale.
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full">Performance</span>
+                                <span class="px-3 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full">Optimization</span>
+                            </div>
+                        </div>
+
+                        <!-- Challenge 8 -->
+                        <div class="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl p-8 shadow-sm card-hover border-l-4 border-pink-500">
+                            <div class="w-16 h-16 rounded-full bg-pink-500/10 flex items-center justify-center mb-6">
+                                <i class="fas fa-graduation-cap text-pink-600 text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">Talent & Expertise Gap</h3>
+                            <p class="text-gray-700 mb-4">
+                                Demand for AI engineers far exceeds supply. Deep expertise in ML systems, distributed computing, and hardware optimization is rare and expensive.
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-pink-100 text-pink-800 text-xs rounded-full">Workforce</span>
+                                <span class="px-3 py-1 bg-pink-100 text-pink-800 text-xs rounded-full">Education</span>
+                            </div>
+                        </div>
+
+                        <!-- Challenge 9 -->
+                        <div class="bg-gradient-to-br from-teal-50 to-green-50 rounded-2xl p-8 shadow-sm card-hover border-l-4 border-teal-500">
+                            <div class="w-16 h-16 rounded-full bg-teal-500/10 flex items-center justify-center mb-6">
+                                <i class="fas fa-balance-scale text-teal-600 text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">Regulatory & Compliance</h3>
+                            <p class="text-gray-700 mb-4">
+                                Evolving regulations like EU AI Act, data sovereignty, and industry standards create compliance complexity for global AI deployments.
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-teal-100 text-teal-800 text-xs rounded-full">Regulation</span>
+                                <span class="px-3 py-1 bg-teal-100 text-teal-800 text-xs rounded-full">Governance</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="bg-gray-50 rounded-2xl p-8 md:p-10 shadow-sm">
-                        <h3 class="text-2xl font-semibold mb-4 text-center">Why Work With Us</h3>
-                        <p class="text-gray-700 leading-relaxed text-center mb-6">
-                            Our unique position at the intersection of education and industry gives us unparalleled insights into both cutting-edge research and real-world application challenges.
+                    <div class="mt-12 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-2xl p-8 md:p-10">
+                        <h3 class="text-2xl font-semibold mb-4 text-center">Addressing the Challenges</h3>
+                        <p class="text-gray-700 leading-relaxed text-center max-w-3xl mx-auto mb-6">
+                            These challenges are driving innovation across the AI computing stack—from novel architectures like Cerebras and Graphcore to efficient algorithms like LoRA and quantization. Understanding these challenges is essential for building the next generation of AI systems.
                         </p>
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div class="flex items-start gap-3">
-                                <i class="fas fa-check-circle text-primary mt-1 flex-shrink-0"></i>
-                                <div>
-                                    <h4 class="font-semibold mb-1">Proven Expertise</h4>
-                                    <p class="text-gray-600 text-sm">Deep knowledge across all AI domains from quantum computing to LLM deployment</p>
-                                </div>
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-primary mb-2">100M+</div>
+                                <p class="text-gray-600 text-sm">Parameters in frontier models</p>
                             </div>
-                            <div class="flex items-start gap-3">
-                                <i class="fas fa-check-circle text-primary mt-1 flex-shrink-0"></i>
-                                <div>
-                                    <h4 class="font-semibold mb-1">Production-Ready</h4>
-                                    <p class="text-gray-600 text-sm">Solutions built on battle-tested code and best practices</p>
-                                </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-primary mb-2">10,000+</div>
+                                <p class="text-gray-600 text-sm">GPUs in large training clusters</p>
                             </div>
-                            <div class="flex items-start gap-3">
-                                <i class="fas fa-check-circle text-primary mt-1 flex-shrink-0"></i>
-                                <div>
-                                    <h4 class="font-semibold mb-1">Continuous Innovation</h4>
-                                    <p class="text-gray-600 text-sm">Always at the forefront of emerging AI technologies</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-3">
-                                <i class="fas fa-check-circle text-primary mt-1 flex-shrink-0"></i>
-                                <div>
-                                    <h4 class="font-semibold mb-1">Full Transparency</h4>
-                                    <p class="text-gray-600 text-sm">Open-source foundations ensure quality and trust</p>
-                                </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-primary mb-2">1-2%</div>
+                                <p class="text-gray-600 text-sm">Global electricity for data centers</p>
                             </div>
                         </div>
                     </div>
